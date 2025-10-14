@@ -122,6 +122,22 @@ architecture/
 - Legal review of scraping
 - OpenAI cost management (Phase 2)
 
+### Guides (docs/guides/)
+
+| File | Description | Priority |
+|------|-------------|----------|
+| [FILE_GUIDE.md](FILE_GUIDE.md) | **THIS FILE** - Complete navigation guide | ⭐⭐⭐ |
+| [GIT_WORKFLOW.md](GIT_WORKFLOW.md) | **Git workflow guide** - Branches, PRs, issues, GitHub Actions | ⭐⭐⭐ |
+
+**GIT_WORKFLOW.md covers**:
+- Branch strategy and naming conventions
+- Issue management and labels
+- Pull request workflow (step-by-step)
+- Commit message guidelines
+- GitHub Actions automation
+- Common scenarios (updating docs, adding diagrams, refactoring)
+- Troubleshooting guide
+
 ---
 
 ## 🗺️ Diagram Files
