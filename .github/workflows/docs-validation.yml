@@ -16,6 +16,10 @@ on:
       - 'ORGANIZATION.md'
       - 'CONTRIBUTING.md'
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   validate-markdown:
     name: Validate Markdown Files
