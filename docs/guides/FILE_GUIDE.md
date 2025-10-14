@@ -22,11 +22,11 @@ This is the **architecture and documentation repository** for COOKie. It contain
 ```
 architecture/
 ├── docs/
-│   ├── architecture/           MVP_ARCHITECTURE.md ⭐, MVP_АРХИТЕКТУРА.md
+│   ├── architecture/           MVP_ARCHITECTURE.md ⭐
 │   ├── requirements/           COOKie-requirements-v1.md
 │   ├── business/               COOKie-description.md, COOKie-investor-pitch.md
 │   ├── planning/               PROJECT_BACKLOG.md ⭐, PROJECT_SUMMARY.md
-│   └── guides/                 FILE_GUIDE.md (this file)
+│   └── guides/                 FILE_GUIDE.md (this file), GIT_WORKFLOW.md
 │
 ├── diagrams/
 │   ├── mvp/                    mvp_simplified_architecture.puml ⭐
@@ -73,7 +73,6 @@ architecture/
 | File | Description | Priority |
 |------|-------------|----------|
 | [MVP_ARCHITECTURE.md](../architecture/MVP_ARCHITECTURE.md) | **PRIMARY MVP SPEC** - 15-week roadmap, tech stack, 250 recipes, 1000 users goal | ⭐⭐⭐ |
-| [MVP_АРХИТЕКТУРА.md](../architecture/MVP_АРХИТЕКТУРА.md) | Russian version of MVP architecture | ⭐⭐⭐ |
 
 **Key Updates** (Latest):
 - ✅ Timeline: 15 weeks (Jan 20-27 launch, added 1-week buffer)
@@ -112,9 +111,7 @@ architecture/
 | File | Description | Priority |
 |------|-------------|----------|
 | [PROJECT_BACKLOG.md](../planning/PROJECT_BACKLOG.md) | **TASK TRACKING** - 16 prioritized tasks | ⭐⭐⭐ |
-| [BACKLOG_ПРОЕКТА.md](../planning/BACKLOG_ПРОЕКТА.md) | Russian version of backlog | ⭐⭐⭐ |
 | [PROJECT_SUMMARY.md](../planning/PROJECT_SUMMARY.md) | Complete work overview, weak points, recommendations | ⭐⭐ |
-| [ИТОГОВЫЙ_ОБЗОР.md](../planning/ИТОГОВЫЙ_ОБЗОР.md) | Russian version of summary | ⭐⭐ |
 
 **Critical Tasks** (CRIT-001 to CRIT-004):
 - Meal planning algorithm (Phase 2)

@@ -420,12 +420,10 @@ git checkout -b docs/extend-mvp-timeline
 
 # 3. Make changes
 # Edit docs/architecture/MVP_ARCHITECTURE.md
-# Edit docs/architecture/MVP_АРХИТЕКТУРА.md (Russian version)
 # Update any references in PROJECT_SUMMARY.md
 
 # 4. Commit changes
 git add docs/architecture/MVP_ARCHITECTURE.md
-git add docs/architecture/MVP_АРХИТЕКТУРА.md
 git add docs/planning/PROJECT_SUMMARY.md
 git commit -m "docs: extend MVP timeline to 15 weeks
 
@@ -609,7 +607,7 @@ gh pr create --title "docs: migrate documentation to C# backend stack" \
 Update all documentation to reflect C# backend decision.
 
 ## Changes
-- ✅ Architecture docs (MVP_ARCHITECTURE.md, MVP_АРХИТЕКТУРА.md)
+- ✅ Architecture docs (MVP_ARCHITECTURE.md)
 - ✅ Planning docs (roadmap, backlog)
 - ✅ Repository structure docs (README, ORGANIZATION)
 - ✅ Guides (FILE_GUIDE)

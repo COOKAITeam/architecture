@@ -683,10 +683,7 @@ Following user agreement on identified weak points, the MVP architecture has bee
 
 ### Additional Files Created
 
-**Russian Translations** (updated with revised content):
-- ✅ [MVP_АРХИТЕКТУРА.md](MVP_АРХИТЕКТУРА.md) - Revised Russian MVP architecture
-- ✅ [BACKLOG_ПРОЕКТА.md](BACKLOG_ПРОЕКТА.md) - Project backlog in Russian
-- ✅ [ИТОГОВЫЙ_ОБЗОР.md](ИТОГОВЫЙ_ОБЗОР.md) - Final overview in Russian
+**Additional Documentation**:
 - ✅ [FILE_GUIDE.md](FILE_GUIDE.md) - Navigation guide for all documentation
 
 **Backlog & Planning**:
