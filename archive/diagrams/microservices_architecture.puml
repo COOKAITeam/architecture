@@ -1,0 +1,84 @@
+@startuml COOKie_Microservices_Architecture
+!theme spacelab
+
+skinparam component {
+    BackgroundColor #E3F2FD
+    BorderColor #1976D2
+    FontColor #0D47A1
+}
+skinparam database {
+    BackgroundColor #F3E5F5
+    BorderColor #7B1FA2
+    FontColor #4A148C
+}
+skinparam cloud {
+    BackgroundColor #FFF3E0
+    BorderColor #F57C00
+    FontColor #E65100
+}
+
+package "MVP Микросервисы" as MVP {
+    component [Recipe Service] as RecipeService
+    component [Parser Service] as ParserService
+    component [Data Enrichment Service] as EnrichmentService
+    component [Analytics Service] as AnalyticsService
+}
+
+package "Вспомогательные сервисы" as Support {
+    component [User Service] as UserService
+    component [Auth Service] as AuthService
+    component [Notification Service] as NotificationService
+    component [Payment Service] as PaymentService
+}
+
+package "Будущие сервисы" as Future {
+    component [AI Nutritionist Service] as AIService
+    component [Meal Planning Service] as MealService
+    component [Order Service] as OrderService
+    component [Gamification Service] as GameService
+}
+
+package "Базы данных" as DB {
+    database "Recipe DB
+(PostgreSQL)" as RecipeDB
+    database "User DB
+(PostgreSQL)" as UserDB
+    database "Analytics DB
+(ClickHouse)" as AnalyticsDB
+}
+
+package "Внешние системы" as External {
+    cloud "1000.menu" as Site1000
+    cloud "tableofgods.com" as SiteGods
+    cloud "TikTok API" as TikTok
+    cloud "YouTube API" as YouTube
+}
+
+' Связи MVP сервисов
+ParserService --> RecipeService : "Parsed Recipes"
+EnrichmentService --> RecipeService : "Enriched Data"
+RecipeService --> AnalyticsService : "Usage Events"
+
+' Связи с базами данных
+RecipeService --> RecipeDB
+UserService --> UserDB
+AnalyticsService --> AnalyticsDB
+
+' Связи с внешними системами
+Site1000 --> ParserService : "HTTP Scraping"
+SiteGods --> ParserService : "HTTP Scraping"
+TikTok --> ParserService : "Video Data"
+YouTube --> ParserService : "Video Data"
+
+' Связи между сервисами
+AuthService --> RecipeService : "Auth Validation"
+UserService --> RecipeService : "User Preferences"
+RecipeService --> NotificationService : "Events"
+
+' Будущие связи (пунктирные)
+RecipeService -.-> AIService : "Recipe Data"
+AIService -.-> MealService : "Recommendations"
+MealService -.-> OrderService : "Shopping Lists"
+AnalyticsService -.-> GameService : "User Statistics"
+
+@enduml

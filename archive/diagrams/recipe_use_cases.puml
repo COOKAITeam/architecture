@@ -1,0 +1,67 @@
+@startuml Recipe_Service_Use_Cases
+!define RECTANGLE class
+
+skinparam backgroundColor #FAFAFA
+skinparam actor {
+    BackgroundColor #E3F2FD
+    BorderColor #1976D2
+    FontColor #1976D2
+}
+skinparam usecase {
+    BackgroundColor #E8F5E8
+    BorderColor #388E3C
+    FontColor #1B5E20
+    ArrowColor #555555
+}
+skinparam package {
+    BackgroundColor #FFF3E0
+    BorderColor #F57C00
+    FontColor #E65100
+}
+
+left to right direction
+
+actor "Пользователь B2C" as UserB2C
+actor "Администратор контента" as AdminContent
+actor "Parser Service" as ParserSvc
+actor "Data Enrichment Service" as EnrichmentSvc
+actor "Analytics Service" as AnalyticsSvc
+
+package "Recipe Service" {
+    usecase "Поиск рецептов" as UC_Search
+    usecase "Фильтрация по категориям" as UC_Filter
+    usecase "Просмотр рецепта" as UC_View
+    usecase "Оценить рецепт" as UC_Rate
+    usecase "Добавить в избранное" as UC_Favorite
+    usecase "Создать рецепт" as UC_Create
+    usecase "Редактировать рецепт" as UC_Edit
+    usecase "Модерировать контент" as UC_Moderate
+    usecase "Импорт рецептов" as UC_Import
+    usecase "Обогащение данных" as UC_Enrich
+    usecase "Сбор статистики" as UC_Collect_Stats
+}
+
+' Связи пользователя B2C
+UserB2C --> UC_Search
+UserB2C --> UC_Filter
+UserB2C --> UC_View
+UserB2C --> UC_Rate
+UserB2C --> UC_Favorite
+
+' Связи администратора
+AdminContent --> UC_Create
+AdminContent --> UC_Edit
+AdminContent --> UC_Moderate
+
+' Связи внешних сервисов
+ParserSvc --> UC_Import
+EnrichmentSvc --> UC_Enrich
+AnalyticsSvc --> UC_Collect_Stats
+
+' Расширения и включения
+UC_Search ..> UC_Filter : <<include>>
+UC_View ..> UC_Rate : <<extend>>
+UC_View ..> UC_Favorite : <<extend>>
+UC_Import ..> UC_Enrich : <<include>>
+
+@enduml

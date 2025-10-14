@@ -1,0 +1,105 @@
+@startuml Recipe_Database_Schema
+!theme spacelab
+
+skinparam class {
+    BackgroundColor #E8F5E8
+    BorderColor #388E3C
+    FontColor #1B5E20
+}
+
+entity "recipes" as recipes {
+    * id : UUID <<PK>>
+    --
+    * title : VARCHAR(255)
+    * description : TEXT
+    history : TEXT
+    cuisine_geography : VARCHAR(100)
+    timeline_category : ENUM
+    difficulty_level : INT(1-5)
+    prep_time : INT
+    cook_time : INT
+    total_time : INT
+    servings : INT
+    instructions : JSON
+    nutrition : JSON
+    dietary_tags : JSON
+    allergens : JSON
+    rating : DECIMAL(2,1)
+    rating_count : INT
+    image_url : VARCHAR(500)
+    source_url : VARCHAR(500)
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+entity "ingredients" as ingredients {
+    * id : UUID <<PK>>
+    --
+    * name : VARCHAR(255)
+    category : VARCHAR(100)
+    nutrition_per_100g : JSON
+    allergens : JSON
+    shelf_life : INT
+    storage_conditions : TEXT
+    substitutes : JSON
+    created_at : TIMESTAMP
+    updated_at : TIMESTAMP
+}
+
+entity "recipe_ingredients" as recipe_ingredients {
+    * recipe_id : UUID <<FK>>
+    * ingredient_id : UUID <<FK>>
+    --
+    quantity : DECIMAL
+    unit : VARCHAR(50)
+    preparation : VARCHAR(255)
+}
+
+entity "recipe_categories" as categories {
+    * id : UUID <<PK>>
+    --
+    * name : VARCHAR(100)
+    parent_id : UUID <<FK>>
+    description : TEXT
+    created_at : TIMESTAMP
+}
+
+entity "recipe_tags" as tags {
+    * id : UUID <<PK>>
+    --
+    * name : VARCHAR(50)
+    type : ENUM
+    created_at : TIMESTAMP
+}
+
+entity "recipe_category_relations" as recipe_categories {
+    * recipe_id : UUID <<FK>>
+    * category_id : UUID <<FK>>
+}
+
+entity "recipe_tag_relations" as recipe_tags_rel {
+    * recipe_id : UUID <<FK>>
+    * tag_id : UUID <<FK>>
+}
+
+entity "user_recipe_ratings" as ratings {
+    * id : UUID <<PK>>
+    --
+    * user_id : UUID <<FK>>
+    * recipe_id : UUID <<FK>>
+    rating : INT(1-5)
+    review : TEXT
+    created_at : TIMESTAMP
+}
+
+' Связи
+recipes ||--o{ recipe_ingredients : contains
+ingredients ||--o{ recipe_ingredients : used_in
+recipes ||--o{ recipe_categories : belongs_to
+categories ||--o{ recipe_categories : categorizes
+recipes ||--o{ recipe_tags_rel : tagged_with
+tags ||--o{ recipe_tags_rel : tags
+recipes ||--o{ ratings : rated_by
+categories ||--o{ categories : parent_of
+
+@enduml
