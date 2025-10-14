@@ -1,33 +1,55 @@
 ---
 name: Documentation Update
-about: Suggest an improvement or report an issue with documentation
-title: '[DOCS] '
-labels: 'documentation'
+about: Update architecture documentation (specs, guides, diagrams)
+title: 'docs: [Brief description]'
+labels: documentation
 assignees: ''
 ---
 
-## Issue with Documentation
+## What Needs to Be Updated
 
-<!-- Describe what's unclear, incorrect, or missing -->
+- [ ] MVP_ARCHITECTURE.md
+- [ ] PROJECT_BACKLOG.md
+- [ ] FRONTEND_STACK.md
+- [ ] FRONTEND_FOLDER_STRUCTURE.md
+- [ ] PlantUML diagrams
+- [ ] Other: ___________
 
-## Affected Files
+---
 
-<!-- List the files that need updating -->
+## Reason for Update
 
--
--
+- [ ] Implementation deviated from spec
+- [ ] New feature not documented
+- [ ] Clarification needed
+- [ ] Outdated information
+- [ ] Technical debt discovered
+- [ ] Architecture decision made
 
-## Suggested Improvement
+---
 
-<!-- Describe how the documentation should be improved -->
+## Proposed Changes
 
-## Priority
+### Before
+Current state of the documentation.
 
-- [ ] 🔴 Critical (blocking development)
-- [ ] 🟡 High (important but not blocking)
-- [ ] 🟢 Medium (nice to have)
-- [ ] 🔵 Low (future improvement)
+### After
+Proposed new state.
 
-## Additional Context
+---
 
-<!-- Screenshots, examples, or other helpful information -->
+## Related
+
+- Implementation PR: COOKAITeam/cookie-frontend#XX
+- Related Issue: #YY
+- Related Epic: #ZZ
+
+---
+
+## Checklist
+
+- [ ] Changes are accurate and up-to-date
+- [ ] Links are not broken
+- [ ] Code examples are valid
+- [ ] Diagrams updated (if applicable)
+- [ ] FILE_GUIDE.md updated (if new files added)
