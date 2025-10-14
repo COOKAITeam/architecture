@@ -53,8 +53,7 @@ This repository serves as the **central hub** for all COOKie project documentati
 COOKie_architecture/
 ├── docs/
 │   ├── architecture/        # Technical architecture documents
-│   │   ├── MVP_ARCHITECTURE.md           ⭐ PRIMARY MVP SPEC
-│   │   └── MVP_АРХИТЕКТУРА.md            (Russian version)
+│   │   └── MVP_ARCHITECTURE.md           ⭐ PRIMARY MVP SPEC
 │   │
 │   ├── requirements/        # Functional and non-functional requirements
 │   │   └── COOKie-requirements-v1.md
@@ -66,9 +65,7 @@ COOKie_architecture/
 │   │
 │   ├── planning/            # Project management and tracking
 │   │   ├── PROJECT_BACKLOG.md            ⭐ TASK TRACKING
-│   │   ├── BACKLOG_ПРОЕКТА.md            (Russian version)
-│   │   ├── PROJECT_SUMMARY.md
-│   │   └── ИТОГОВЫЙ_ОБЗОР.md             (Russian version)
+│   │   └── PROJECT_SUMMARY.md
 │   │
 │   └── guides/              # Documentation guides
 │       └── FILE_GUIDE.md                 ⭐ NAVIGATION GUIDE
@@ -315,7 +312,6 @@ When updating documentation:
 ### Documentation Standards
 
 - Architecture changes require updates to both diagrams and docs
-- Maintain both English and Russian versions where applicable
 - Follow existing formatting and structure
 - Update [FILE_GUIDE.md](docs/guides/FILE_GUIDE.md) if adding new files
 
