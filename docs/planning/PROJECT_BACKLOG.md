@@ -1,319 +1,846 @@
 # COOKie Project - Development Backlog
 
-> **Purpose**: Track critical modifications, future tasks, and items that cannot be completed immediately
-> **Last Updated**: 2025-10-13
-> **Status**: Active
+> **Purpose**: Track development tasks organized by implementation phase (Frontend → Backend → Integration)
+> **Last Updated**: 2025-10-15
+> **Status**: Active - Frontend-First Development Strategy
 
 ---
 
-## 🔴 Critical Tasks (Blockers / High Priority)
+## 📋 Overview
+
+This backlog is organized by **development phase** to support a frontend-first approach:
+1. **Frontend MVP Tasks** (Weeks 7-10) - Prioritized for immediate work
+2. **Backend MVP Tasks** (Weeks 3-6) - Core API development
+3. **Integration & Polish** (Weeks 10-12) - Connect frontend/backend, testing
+4. **Post-MVP** - Phase 2+ features
+
+---
+
+## 🎨 Frontend MVP Tasks (Weeks 7-10)
+
+### FRONT-001: Core Pages & Navigation (Week 7)
+**Status**: Ready to Start
+**Priority**: CRITICAL
+**Phase**: MVP Week 7 (25 Nov - 1 Dec)
+**Estimated Effort**: 5 days
+
+**Description**:
+Build core application pages and navigation structure using Next.js 14 App Router.
+
+**Acceptance Criteria**:
+- [ ] **Home Page** (`app/(main)/page.tsx`)
+  - Hero section with search bar
+  - Featured recipes grid (6-8 recipes)
+  - Popular categories section
+  - Responsive layout (mobile + desktop)
+- [ ] **Recipes Search/Browse Page** (`app/(main)/recipes/page.tsx`)
+  - Recipe grid with pagination
+  - Filter sidebar (cuisine, difficulty, time, dietary tags)
+  - Search bar with debouncing
+  - Loading states & empty states
+- [ ] **Recipe Detail Page** (`app/(main)/recipes/[slug]/page.tsx`)
+  - Recipe header (title, image, rating, time, difficulty)
+  - Ingredients list
+  - Cooking steps (numbered)
+  - Nutrition info panel (KBJU)
+  - Favorite button (requires auth)
+- [ ] **Global Navigation**
+  - Header component (logo, nav links, auth buttons)
+  - Footer component (links, social, copyright)
+  - Mobile hamburger menu
+
+**Components to Build**:
+```typescript
+components/
+├── layout/
+│   ├── Header.tsx
+│   ├── Footer.tsx
+│   └── MobileMenu.tsx
+├── recipes/
+│   ├── RecipeCard.tsx
+│   ├── RecipeGrid.tsx
+│   ├── RecipeFilters.tsx
+│   ├── RecipeDetail.tsx
+│   ├── NutritionInfo.tsx
+│   ├── IngredientsList.tsx
+│   └── CookingSteps.tsx
+└── ui/
+    ├── Button.tsx
+    ├── Input.tsx
+    ├── Card.tsx
+    ├── Badge.tsx
+    └── Spinner.tsx
+```
+
+**Tech Stack Used**:
+- Next.js 14 App Router
+- TailwindCSS for styling
+- Lucide React for icons
+- Mock data initially (JSON files)
+
+**Dependencies**: None (can start immediately)
+
+---
+
+### FRONT-002: User Authentication Flow (Week 8)
+**Status**: Not Started
+**Priority**: CRITICAL
+**Phase**: MVP Week 8 (2-8 Dec)
+**Estimated Effort**: 4 days
+
+**Description**:
+Implement authentication using NextAuth.js with email/password and OAuth providers.
+
+**Acceptance Criteria**:
+- [ ] **NextAuth.js Setup**
+  - Configure `app/api/auth/[...nextauth]/route.ts`
+  - Credentials provider (email + password)
+  - OAuth providers: Yandex, VK
+  - Session management with JWT
+  - Refresh token handling
+- [ ] **Login Page** (`app/(auth)/login/page.tsx`)
+  - Email/password form (React Hook Form + Zod)
+  - OAuth buttons (Yandex, VK)
+  - "Forgot password" link
+  - Redirect to previous page after login
+- [ ] **Register Page** (`app/(auth)/register/page.tsx`)
+  - Email, password, confirm password fields
+  - Validation (Zod schema)
+  - Terms & conditions checkbox
+  - Redirect to onboarding or home
+- [ ] **Auth Context/Store**
+  - Zustand store or React Context for auth state
+  - `useAuth` hook for accessing user data
+  - Protected route HOC or middleware
+- [ ] **Session Persistence**
+  - Store JWT in httpOnly cookies
+  - Axios interceptor for auth token
+  - Auto-refresh on 401 errors
+
+**Components to Build**:
+```typescript
+components/
+├── forms/
+│   ├── LoginForm.tsx
+│   └── RegisterForm.tsx
+└── ui/
+    ├── Input.tsx (with error states)
+    └── Modal.tsx (for auth modals)
+
+stores/
+└── useAuthStore.ts
+
+lib/
+└── api/
+    ├── axiosClient.ts (with interceptors)
+    └── auth.ts (login/register/logout methods)
+```
+
+**Tech Stack Used**:
+- NextAuth.js v5
+- React Hook Form + Zod
+- Axios with interceptors
+- Zustand for client-side auth state
+
+**Dependencies**:
+- Backend auth endpoints ready (BACK-003)
+- Can use mock API initially
+
+---
+
+### FRONT-003: User Profile & Favorites (Week 8)
+**Status**: Not Started
+**Priority**: HIGH
+**Phase**: MVP Week 8 (2-8 Dec)
+**Estimated Effort**: 3 days
+
+**Description**:
+Build user profile management and favorites functionality.
+
+**Acceptance Criteria**:
+- [ ] **Profile Page** (`app/(main)/profile/page.tsx`)
+  - Display user info (name, email, avatar)
+  - Edit profile form (name, avatar upload)
+  - Password change form
+  - Account settings (email notifications)
+- [ ] **Favorites Page** (`app/(main)/profile/favorites/page.tsx`)
+  - Grid of favorited recipes
+  - Filter/sort options
+  - Remove from favorites
+  - Empty state when no favorites
+- [ ] **Favorite Button Component**
+  - Heart icon (filled when favorited)
+  - Optimistic UI updates
+  - Auth required (redirect to login)
+  - Toast notification on add/remove
+
+**API Hooks**:
+```typescript
+hooks/api/
+├── useUser.ts          // GET /api/v1/users/me
+├── useUpdateUser.ts    // PATCH /api/v1/users/me
+├── useFavorites.ts     // GET /api/v1/users/me/favorites
+└── useFavorite.ts      // POST/DELETE /api/v1/recipes/:id/favorite
+```
+
+**Tech Stack Used**:
+- TanStack Query for data fetching
+- React Hook Form for profile editing
+- Optimistic updates for favorites
+
+**Dependencies**:
+- Backend user/favorites endpoints (BACK-004, BACK-005)
+- Authentication working (FRONT-002)
+
+---
+
+### FRONT-004: Recipe Rating System (Week 8)
+**Status**: Not Started
+**Priority**: MEDIUM
+**Phase**: MVP Week 8 (2-8 Dec)
+**Estimated Effort**: 2 days
+
+**Description**:
+Implement 5-star rating system for recipes.
+
+**Acceptance Criteria**:
+- [ ] **Rating Stars Component**
+  - Display average rating (read-only)
+  - Interactive stars for user rating
+  - Show user's existing rating
+  - Hover effects
+- [ ] **Rating Submission**
+  - Submit rating (1-5 stars)
+  - Optional review text (Phase 2)
+  - Update optimistically
+  - Show success toast
+- [ ] **Rating Display**
+  - Average rating on recipe cards
+  - Rating count ("4.5 (123 ratings)")
+  - User's rating highlighted on detail page
+
+**Components to Build**:
+```typescript
+components/recipes/
+├── RatingStars.tsx      // Display + interactive
+└── RatingDisplay.tsx    // Read-only with count
+```
+
+**API Hooks**:
+```typescript
+hooks/api/
+├── useRating.ts         // GET user's rating for recipe
+└── useSubmitRating.ts   // POST /api/v1/recipes/:id/rating
+```
+
+**Tech Stack Used**:
+- TanStack Query with optimistic updates
+- Lucide React for star icons
+
+**Dependencies**:
+- Backend rating endpoints (BACK-006)
+- Authentication (FRONT-002)
+
+---
+
+### FRONT-005: Admin Panel - Recipe Management (Week 9)
+**Status**: Not Started
+**Priority**: HIGH
+**Phase**: MVP Week 9 (9-15 Dec)
+**Estimated Effort**: 5 days
+
+**Description**:
+Build admin panel for recipe CRUD operations and batch import.
+
+**Acceptance Criteria**:
+- [ ] **Admin Dashboard** (`app/admin/dashboard/page.tsx`)
+  - Total recipes count
+  - Published vs draft count
+  - Recent activity
+  - Quick actions
+- [ ] **Recipe List** (`app/admin/recipes/page.tsx`)
+  - Paginated table of all recipes
+  - Filter by status (draft/published)
+  - Search by title
+  - Edit/delete actions
+- [ ] **Recipe Create/Edit Form** (`app/admin/recipes/new/page.tsx`, `app/admin/recipes/[id]/edit/page.tsx`)
+  - Title, slug, description
+  - Cuisine, difficulty, times, servings
+  - Ingredients (dynamic list)
+  - Instructions (dynamic steps)
+  - Nutrition values (KBJU)
+  - Dietary tags, allergens
+  - Image upload (Yandex Object Storage)
+  - Status (draft/published)
+  - Form validation with Zod
+- [ ] **Batch Import Tool** (`app/admin/recipes/import/page.tsx`)
+  - Upload CSV/JSON file
+  - Preview imported recipes
+  - Validate data
+  - Import in batches
+  - Show progress/errors
+
+**Components to Build**:
+```typescript
+components/
+├── admin/
+│   ├── RecipeTable.tsx
+│   ├── RecipeForm.tsx
+│   ├── IngredientInput.tsx (dynamic list)
+│   ├── InstructionInput.tsx (dynamic steps)
+│   ├── ImageUpload.tsx
+│   └── BatchImport.tsx
+└── ui/
+    ├── Table.tsx
+    ├── Select.tsx
+    ├── Textarea.tsx
+    └── FileUpload.tsx
+```
+
+**API Hooks**:
+```typescript
+hooks/api/admin/
+├── useRecipes.ts         // GET /api/v1/admin/recipes
+├── useRecipe.ts          // GET /api/v1/admin/recipes/:id
+├── useCreateRecipe.ts    // POST /api/v1/admin/recipes
+├── useUpdateRecipe.ts    // PATCH /api/v1/admin/recipes/:id
+├── useDeleteRecipe.ts    // DELETE /api/v1/admin/recipes/:id
+├── usePublishRecipe.ts   // POST /api/v1/admin/recipes/:id/publish
+└── useBatchImport.ts     // POST /api/v1/admin/recipes/batch
+```
+
+**Tech Stack Used**:
+- React Hook Form (large forms)
+- Zod schemas for validation
+- TanStack Query mutations
+- File upload to Yandex Object Storage
+
+**Dependencies**:
+- Backend admin endpoints (BACK-007)
+- Admin role middleware
+- Object Storage configured
+
+---
+
+### FRONT-006: Polish, SEO & Performance (Week 10)
+**Status**: Not Started
+**Priority**: HIGH
+**Phase**: MVP Week 10 (16-22 Dec)
+**Estimated Effort**: 5 days
+
+**Description**:
+Polish UI/UX, optimize SEO, and improve performance.
+
+**Acceptance Criteria**:
+- [ ] **Responsive Design**
+  - Test all pages on mobile (320px - 768px)
+  - Test on tablet (768px - 1024px)
+  - Fix layout issues
+  - Touch-friendly interactions
+- [ ] **Loading & Error States**
+  - Skeleton loaders for recipe cards
+  - Spinner for page transitions
+  - Error boundaries
+  - Retry mechanisms
+  - User-friendly error messages
+- [ ] **SEO Optimization**
+  - Dynamic meta tags (title, description, OG, Twitter)
+  - Structured data (schema.org Recipe markup)
+  - Sitemap.xml generation
+  - robots.txt
+  - Google Search Console setup
+- [ ] **Performance**
+  - Image optimization (next/image, lazy loading)
+  - Code splitting (dynamic imports for heavy components)
+  - Font optimization (next/font)
+  - Minimize bundle size
+  - Lighthouse score 90+ (Performance, SEO, Accessibility)
+- [ ] **Accessibility**
+  - Keyboard navigation
+  - ARIA labels
+  - Focus management
+  - Screen reader testing
+
+**Tasks**:
+```typescript
+// SEO
+app/layout.tsx              // Root metadata
+app/(main)/recipes/[slug]/page.tsx  // Dynamic recipe metadata
+
+// Performance
+- Implement lazy loading for recipe images
+- Dynamic import for admin panel (not needed on main site)
+- Optimize fonts (Inter variable font)
+
+// Components
+components/common/
+├── LoadingState.tsx
+├── ErrorMessage.tsx
+├── ErrorBoundary.tsx
+└── SkeletonLoader.tsx
+```
+
+**Tech Stack Used**:
+- next/image for optimization
+- next/font for font loading
+- Next.js metadata API
+- Lighthouse CI for testing
+
+**Dependencies**:
+- All core features completed
+- Backend API stable
+
+---
+
+## 🔧 Backend MVP Tasks (Weeks 3-6)
+
+### BACK-001: Project Setup & Infrastructure (Week 3)
+**Status**: Not Started
+**Priority**: CRITICAL
+**Phase**: MVP Week 3 (28 Oct - 3 Nov)
+**Estimated Effort**: 3 days
+
+**Description**:
+Initialize ASP.NET Core 8 backend project with PostgreSQL and Redis.
+
+**Acceptance Criteria**:
+- [ ] ASP.NET Core 8 project created
+- [ ] Entity Framework Core 8 configured
+- [ ] PostgreSQL connection setup (local Docker)
+- [ ] Redis connection setup (local Docker)
+- [ ] FluentValidation integrated
+- [ ] Serilog for logging
+- [ ] docker-compose.yml for local dev (PostgreSQL + Redis)
+- [ ] Seed data for development
+- [ ] Swagger/OpenAPI documentation
+
+**Dependencies**: None
+
+---
+
+### BACK-002: Recipe Entity & Database (Week 3)
+**Status**: Not Started
+**Priority**: CRITICAL
+**Phase**: MVP Week 3 (28 Oct - 3 Nov)
+**Estimated Effort**: 2 days
+
+**Description**:
+Create Recipe entity model and database schema.
+
+**Acceptance Criteria**:
+- [ ] Recipe entity with all fields (title, slug, description, cuisine, difficulty, times, servings, instructions, nutrition, tags, allergens, images, ratings, counts, status, timestamps)
+- [ ] EF Core migration created
+- [ ] Database indexes (slug, status, cuisine, rating, popularity, dietary_tags, full-text search)
+- [ ] Seed 10 test recipes
+
+**Database Schema**:
+```sql
+recipes (
+  id, slug, title, description, cuisine, difficulty,
+  prep_time_minutes, cook_time_minutes, total_time_minutes, servings,
+  instructions (JSONB), nutrition_per_serving (JSONB),
+  dietary_tags, allergens, image_urls,
+  rating_avg, rating_count, view_count, favorite_count,
+  status, created_at, updated_at
+)
+```
+
+**Dependencies**: BACK-001
+
+---
+
+### BACK-003: Authentication & User Management (Week 5)
+**Status**: Not Started
+**Priority**: CRITICAL
+**Phase**: MVP Week 5 (11-17 Nov)
+**Estimated Effort**: 5 days
+
+**Description**:
+Implement authentication with ASP.NET Core Identity, JWT tokens, and OAuth.
+
+**Acceptance Criteria**:
+- [ ] User entity (id, email, password_hash, username, first_name, avatar_url, oauth_provider, oauth_id, email_verified, created_at)
+- [ ] ASP.NET Core Identity integration
+- [ ] JWT token generation/validation
+- [ ] Refresh token mechanism
+- [ ] OAuth integration (Yandex, VK providers)
+- [ ] Password reset flow
+- [ ] Email verification (optional for MVP)
+
+**API Endpoints**:
+```
+POST /api/v1/auth/register
+POST /api/v1/auth/login
+POST /api/v1/auth/refresh
+POST /api/v1/auth/logout
+GET  /api/v1/auth/oauth/:provider
+```
+
+**Dependencies**: BACK-001, BACK-002
+
+---
+
+### BACK-004: Recipe CRUD API (Week 3-4)
+**Status**: Not Started
+**Priority**: CRITICAL
+**Phase**: MVP Weeks 3-4 (28 Oct - 10 Nov)
+**Estimated Effort**: 4 days
+
+**Description**:
+Build public-facing recipe API endpoints.
+
+**Acceptance Criteria**:
+- [ ] GET /api/v1/recipes (search, filters, pagination, sorting)
+  - Full-text search (PostgreSQL tsvector)
+  - Filter by: cuisine, difficulty, max_time, dietary_tags
+  - Sort by: rating, popularity, created_at
+  - Pagination (page, per_page)
+- [ ] GET /api/v1/recipes/:slug (single recipe details)
+- [ ] GET /api/v1/recipes/popular (top 20)
+- [ ] GET /api/v1/recipes/cuisines (list of cuisines)
+- [ ] Response caching (Redis, 5 min TTL)
+- [ ] Request validation (FluentValidation)
+- [ ] Error handling middleware
+
+**Tech Stack**:
+- Entity Framework Core queries
+- Redis caching layer
+- FluentValidation for request DTOs
+
+**Dependencies**: BACK-002
+
+---
+
+### BACK-005: Favorites & User Profile (Week 5-6)
+**Status**: Not Started
+**Priority**: HIGH
+**Phase**: MVP Weeks 5-6 (11-24 Nov)
+**Estimated Effort**: 3 days
+
+**Description**:
+Implement user favorites and profile management.
+
+**Acceptance Criteria**:
+- [ ] user_favorites table (user_id, recipe_id, created_at, PK composite)
+- [ ] GET /api/v1/users/me (current user profile)
+- [ ] PATCH /api/v1/users/me (update profile)
+- [ ] GET /api/v1/users/me/favorites (user's favorite recipes)
+- [ ] POST /api/v1/recipes/:id/favorite (add to favorites)
+- [ ] DELETE /api/v1/recipes/:id/favorite (remove from favorites)
+- [ ] Update favorite_count on recipes
+- [ ] JWT middleware for protected routes
+
+**Dependencies**: BACK-003, BACK-004
+
+---
+
+### BACK-006: Rating System (Week 6)
+**Status**: Not Started
+**Priority**: MEDIUM
+**Phase**: MVP Week 6 (18-24 Nov)
+**Estimated Effort**: 2 days
+
+**Description**:
+Implement recipe rating system (1-5 stars).
+
+**Acceptance Criteria**:
+- [ ] user_ratings table (id, user_id, recipe_id, rating 1-5, review text, created_at, UNIQUE user_id+recipe_id)
+- [ ] POST /api/v1/recipes/:id/rating (submit rating)
+- [ ] PATCH /api/v1/recipes/:id/rating (update rating)
+- [ ] DELETE /api/v1/recipes/:id/rating (delete rating)
+- [ ] Aggregate rating calculation (average, count)
+- [ ] Update recipe.rating_avg and recipe.rating_count
+- [ ] Background job for rating aggregation (optional)
+
+**Dependencies**: BACK-003, BACK-004
+
+---
+
+### BACK-007: Admin API Endpoints (Week 6)
+**Status**: Not Started
+**Priority**: HIGH
+**Phase**: MVP Week 6 (18-24 Nov)
+**Estimated Effort**: 3 days
+
+**Description**:
+Build admin-only endpoints for recipe management.
+
+**Acceptance Criteria**:
+- [ ] Admin role in ASP.NET Core Identity
+- [ ] Role-based authorization middleware
+- [ ] POST /api/v1/admin/recipes (create recipe)
+- [ ] PATCH /api/v1/admin/recipes/:id (update recipe)
+- [ ] DELETE /api/v1/admin/recipes/:id (delete recipe)
+- [ ] POST /api/v1/admin/recipes/:id/publish (publish draft)
+- [ ] POST /api/v1/admin/recipes/batch (batch import from JSON/CSV)
+- [ ] GET /api/v1/admin/stats (dashboard statistics)
+- [ ] Image upload to Yandex Object Storage
+- [ ] Validation for all fields
+
+**Dependencies**: BACK-003, BACK-004
+
+---
+
+### BACK-008: Image Upload & Object Storage (Week 6)
+**Status**: Not Started
+**Priority**: HIGH
+**Phase**: MVP Week 6 (18-24 Nov)
+**Estimated Effort**: 2 days
+
+**Description**:
+Implement image upload to Yandex Object Storage.
+
+**Acceptance Criteria**:
+- [ ] Configure Yandex Object Storage SDK
+- [ ] Image upload endpoint (POST /api/v1/upload/image)
+- [ ] File validation (type, size limits)
+- [ ] Generate unique filenames
+- [ ] Return CDN URL
+- [ ] Handle errors gracefully
+- [ ] Set proper CORS headers
+
+**Dependencies**: BACK-001
+
+---
+
+## 🔗 Integration & Testing (Weeks 10-12)
+
+### INT-001: Frontend-Backend Integration (Week 10)
+**Status**: Not Started
+**Priority**: CRITICAL
+**Phase**: MVP Week 10 (16-22 Dec)
+**Estimated Effort**: 3 days
+
+**Description**:
+Connect frontend to live backend API.
+
+**Acceptance Criteria**:
+- [ ] Update axios baseURL to backend URL
+- [ ] Configure CORS on backend
+- [ ] Test all API endpoints with frontend
+- [ ] Fix authentication flow (JWT tokens)
+- [ ] Test OAuth flows (Yandex, VK)
+- [ ] Handle API errors gracefully
+- [ ] Test pagination, search, filters
+- [ ] Test image uploads
+- [ ] Environment variables configured
+
+**Dependencies**: All FRONT-* and BACK-* tasks completed
+
+---
+
+### INT-002: End-to-End Testing (Week 11-12)
+**Status**: Not Started
+**Priority**: HIGH
+**Phase**: MVP Weeks 11-12 (23 Dec - 5 Jan)
+**Estimated Effort**: 5 days
+
+**Description**:
+Comprehensive testing of entire application.
+
+**Acceptance Criteria**:
+- [ ] **Manual QA**: Test all user flows
+  - Registration → Login → Browse recipes → View detail → Favorite → Rate → Logout
+  - Admin: Login → Create recipe → Edit → Publish
+- [ ] **Unit Tests**: Backend (80%+ coverage)
+  - Service layer tests
+  - Repository tests
+- [ ] **Integration Tests**: API endpoints
+  - Auth flow tests
+  - Recipe CRUD tests
+  - Favorites/ratings tests
+- [ ] **Component Tests**: Frontend (key components)
+  - RecipeCard, RecipeFilters, LoginForm
+- [ ] **Performance Testing**:
+  - Load test API (100 concurrent users)
+  - Test DB query performance
+  - Check N+1 query issues
+- [ ] **Security Testing**:
+  - SQL injection attempts
+  - XSS prevention
+  - CSRF tokens
+  - Auth bypass attempts
+
+**Dependencies**: INT-001
+
+---
+
+## 🔴 Critical Blockers (Phase 2+)
 
 ### CRIT-001: Define Formal Meal Planning Algorithm
 **Status**: Not Started
 **Priority**: HIGH
-**Assigned to**: To be determined
+**Phase**: Phase 2 (Post-MVP)
+**Estimated Effort**: 2-3 weeks
+
 **Description**:
-Current state: Vague mention of "linear programming or greedy algorithm"
-Required: Formal specification of meal planning optimization algorithm
+Formal specification of meal planning optimization algorithm (Phase 2 feature).
 
 **Acceptance Criteria**:
 - [ ] Define hard constraints (allergies, dietary restrictions, KBJU limits)
-- [ ] Define soft constraints (variety, cost, user preferences)
-- [ ] Choose specific algorithm (Branch & Bound, Genetic Algorithm, Constraint Programming, or Greedy)
-- [ ] Document algorithm complexity and performance characteristics
-- [ ] Create pseudocode or flowchart
-- [ ] Validate with sample data (10 test cases)
+- [ ] Define soft constraints (variety, cost, preferences)
+- [ ] Choose algorithm (Branch & Bound, Genetic, Constraint Programming, Greedy)
+- [ ] Document complexity and performance characteristics
+- [ ] Create pseudocode/flowchart
+- [ ] Validate with test data
 
-**Estimated Effort**: 2-3 weeks (research + implementation + testing)
-
-**Dependencies**: Recipe Service with KBJU data, User Profile Service
-
-**Notes**:
-- Consider using Python libraries: PuLP (linear programming), DEAP (genetic algorithms), or OR-Tools (Google's constraint solver)
-- Start with simple greedy algorithm for MVP, optimize later
+**Notes**: Start with simple greedy algorithm, optimize later.
 
 ---
 
-### CRIT-002: Error Handling Documentation for All Services
+### CRIT-002: Error Handling Documentation
 **Status**: Not Started
-**Priority**: HIGH
-**Assigned to**: To be determined
+**Priority**: MEDIUM
+**Phase**: Before Production Deploy
+**Estimated Effort**: 1 week
+
 **Description**:
-Current state: Sequence diagrams show only happy paths
-Required: Comprehensive error handling strategy for all microservices
+Comprehensive error handling strategy for all services.
 
 **Acceptance Criteria**:
-- [ ] Document error scenarios for each service (Recipe, Parser, Enrichment, etc.)
-- [ ] Define error codes and messages (standardized format)
-- [ ] Create error handling sequence diagrams (API timeout, DB failure, external API failure)
-- [ ] Define retry policies (exponential backoff parameters)
+- [ ] Document error scenarios (timeouts, DB failures, external API failures)
+- [ ] Define error codes/messages (RFC 7807 Problem Details)
+- [ ] Create error handling diagrams
+- [ ] Define retry policies (exponential backoff)
 - [ ] Define circuit breaker thresholds
 - [ ] Document fallback strategies
-- [ ] Create error monitoring and alerting rules
-
-**Estimated Effort**: 1 week (documentation)
-
-**Dependencies**: All services
-
-**Notes**:
-- Use RFC 7807 Problem Details for HTTP APIs
-- Implement at API Gateway level for consistency
+- [ ] Create error monitoring/alerting rules
 
 ---
 
-### CRIT-003: Legal Review of Web Scraping Strategy
+### CRIT-003: Legal Review of Web Scraping
 **Status**: Not Started
 **Priority**: CRITICAL
-**Assigned to**: Legal consultant (to be hired)
+**Phase**: Before Using Parser Service
+**Estimated Effort**: 1-2 weeks
+**Budget**: 30,000-50,000 ₽
+
 **Description**:
-Current state: Parser Service designed to scrape recipe sites
-Risk: Potential ToS violations, copyright infringement
+Legal consultation for web scraping strategy.
 
 **Acceptance Criteria**:
-- [ ] Consult with lawyer specializing in IT/IP law
-- [ ] Review robots.txt compliance for target sites (1000.menu, tableofgods.com)
-- [ ] Assess copyright risks for recipe content
-- [ ] Define legally safe scraping practices
-- [ ] Draft attribution policy for scraped content
-- [ ] Consider alternative: partnership agreements with recipe sites
+- [ ] Consult IT/IP lawyer
+- [ ] Review robots.txt compliance
+- [ ] Assess copyright risks
+- [ ] Define legally safe practices
+- [ ] Draft attribution policy
+- [ ] Consider partnership agreements
 
-**Estimated Effort**: 1-2 weeks (legal consultation)
+**Blocker**: Cannot deploy Parser Service without legal clearance.
 
-**Budget**: 30,000-50,000 ₽ (legal fees)
-
-**Blocker**: Cannot deploy Parser Service to production without legal clearance
-
-**Notes**:
-- Recipes themselves are not copyrightable (facts), but specific expression/text is
-- Images are definitely copyrighted - need explicit permission or use own photos
-- Consider manual curation for MVP to avoid legal risks entirely
+**Alternative**: Manual curation for MVP (recommended).
 
 ---
 
-### CRIT-004: OpenAI API Cost Management Strategy
+### CRIT-004: OpenAI API Cost Management
 **Status**: Not Started
 **Priority**: HIGH
-**Assigned to**: Backend developer
+**Phase**: Phase 2 (AI Features)
+**Estimated Effort**: 1 week
+
 **Description**:
-Risk: Unlimited AI queries for Premium users could result in unsustainable API costs
+Prevent unsustainable OpenAI API costs for AI nutritionist feature.
 
 **Acceptance Criteria**:
-- [ ] Calculate projected OpenAI costs for different user scenarios
-- [ ] Implement request caching for common queries (Redis with TTL)
-- [ ] Define rate limits even for Premium users (e.g., 100 queries/day)
-- [ ] Implement query cost tracking per user
-- [ ] Set up budget alerts in OpenAI dashboard
-- [ ] Research alternatives: self-hosted models (Llama 3, Mistral), YandexGPT
+- [ ] Calculate projected costs for scenarios
+- [ ] Implement request caching (Redis)
+- [ ] Define rate limits (e.g., 100 queries/day per Premium user)
+- [ ] Implement cost tracking per user
+- [ ] Set up budget alerts
+- [ ] Research alternatives (Llama 3, YandexGPT)
 
-**Estimated Effort**: 1 week (implementation + testing)
-
-**Dependencies**: AI Nutritionist Service (Phase 2)
-
-**Notes**:
-- GPT-4: ~$0.03 per query (assuming 1K input + 500 output tokens)
-- 1000 Premium users × 50 queries/month = 50K queries = $1,500/month
-- Target: Keep AI costs under 20% of Premium revenue
+**Notes**: Target AI costs < 20% of Premium revenue.
 
 ---
 
-## 🟡 High Priority Tasks (Important but not blocking)
+## 🟡 Post-MVP Features (Phase 2+)
 
-### HIGH-001: Progressive Web App (PWA) Research
-**Status**: Not Started
+### HIGH-001: Progressive Web App (PWA)
 **Priority**: MEDIUM-HIGH
-**Phase**: Post-MVP (February-March 2026)
-**Description**:
-Explore PWA as interim solution before native mobile apps
+**Phase**: Q1 2026
+**Effort**: 1 week (research)
 
-**Acceptance Criteria**:
-- [ ] Research PWA capabilities (push notifications, offline mode, home screen install)
-- [ ] Compare PWA vs React Native for COOKie use case
-- [ ] Estimate development effort for PWA
-- [ ] Create technical design doc for PWA implementation
-- [ ] Test PWA on iOS and Android devices
-
-**Estimated Effort**: 1 week (research)
-
-**Notes**:
-- PWA might be sufficient for Phase 1-2 (until gamification requires native features)
-- iOS has limited PWA support (no background push, limited storage)
+**Description**: Explore PWA as interim solution before native apps.
 
 ---
 
 ### HIGH-002: KBJU Data Validation Process
-**Status**: Not Started
 **Priority**: HIGH
-**Phase**: MVP
-**Description**:
-Ensure nutritional data accuracy to avoid health risks and maintain trust
+**Phase**: MVP Content Creation
+**Effort**: 2 weeks
+**Budget**: 50,000-70,000 ₽
 
-**Acceptance Criteria**:
-- [ ] License or acquire authoritative nutrition database (USDA FoodData Central, Russian equivalent)
-- [ ] Hire nutritionist for data validation (part-time, remote)
-- [ ] Create validation checklist for each recipe
-- [ ] Implement user reporting mechanism for incorrect KBJU
-- [ ] Define confidence score for KBJU calculations (0-100%)
-- [ ] Add disclaimer: "Nutritional information is estimated"
-
-**Estimated Effort**: 2 weeks (setup + first batch validation)
-
-**Budget**: 50,000-70,000 ₽ (nutritionist fees for 1000 recipes)
-
-**Dependencies**: Recipe database
+**Description**: Hire nutritionist for KBJU validation to ensure accuracy.
 
 ---
 
 ### HIGH-003: Recipe Partnership Strategy
-**Status**: Not Started
 **Priority**: HIGH
 **Phase**: MVP
-**Description**:
-Establish partnerships with food bloggers/recipe creators instead of scraping
+**Effort**: 3-4 weeks
 
-**Acceptance Criteria**:
-- [ ] Identify 10-20 Russian food bloggers with quality content
-- [ ] Draft partnership agreement template (content license)
-- [ ] Define value proposition for bloggers (exposure, revenue share?)
-- [ ] Reach out to 5 bloggers for pilot partnerships
-- [ ] Implement attribution system (byline, link to original)
-- [ ] Create blogger portal for content submission
-
-**Estimated Effort**: 3-4 weeks (outreach + agreements)
-
-**Notes**:
-- Offer: Free Premium subscription + attribution + potential revenue share
-- Target bloggers: 10K-100K followers (micro-influencers)
+**Description**: Partner with food bloggers instead of scraping.
 
 ---
 
-## 🟢 Medium Priority Tasks
-
-### MED-001: A/B Testing Framework Setup
-**Status**: Not Started
+### MED-001: A/B Testing Framework
 **Priority**: MEDIUM
-**Phase**: Post-MVP (Q1 2026)
-**Description**:
-Implement proper A/B testing infrastructure for data-driven decisions
+**Phase**: Q1 2026
+**Effort**: 1 week
 
-**Acceptance Criteria**:
-- [ ] Choose A/B testing library (LaunchDarkly, Optimizely, or custom)
-- [ ] Implement feature flags in backend
-- [ ] Create user bucketing logic (consistent hashing by user_id)
-- [ ] Define experiment framework (hypothesis, metrics, sample size)
-- [ ] Set up statistical significance calculator
-- [ ] Create dashboard for experiment results
-
-**Estimated Effort**: 1 week (implementation)
-
-**Dependencies**: Analytics Service
+**Description**: Feature flags and A/B testing for data-driven decisions.
 
 ---
 
 ### MED-002: SEO Optimization Strategy
-**Status**: Not Started
 **Priority**: MEDIUM
-**Phase**: MVP
-**Description**:
-Recipe pages are great for organic traffic - optimize for search engines
+**Phase**: MVP Week 10
+**Effort**: 1 week
 
-**Acceptance Criteria**:
-- [ ] Implement proper meta tags (Open Graph, Twitter Cards)
-- [ ] Add structured data (schema.org Recipe markup)
-- [ ] Optimize page titles and descriptions
-- [ ] Implement dynamic sitemap.xml
-- [ ] Set up Google Search Console
-- [ ] Create content strategy (blog posts linking to recipes)
-- [ ] Target keywords: "[название блюда] рецепт калории кбжу"
-
-**Estimated Effort**: 1 week (implementation)
-
-**Notes**:
-- Recipe pages can drive significant organic traffic (30-40% of users)
-- Focus on long-tail keywords with low competition
+**Description**: Optimize recipe pages for organic search traffic.
 
 ---
 
-### MED-003: Referral Program Design
-**Status**: Not Started
+### MED-003: Referral Program
 **Priority**: MEDIUM
-**Phase**: Q1 2026 (after achieving product-market fit)
-**Description**:
-Implement referral system to reduce CAC
+**Phase**: Q1 2026
+**Effort**: 1 week
 
-**Acceptance Criteria**:
-- [ ] Define referral incentive (both users get 1 month Premium free?)
-- [ ] Implement referral link generation (unique code per user)
-- [ ] Create referral tracking in database
-- [ ] Build referral dashboard for users (how many friends invited)
-- [ ] Set up email notifications for successful referrals
-- [ ] Add anti-fraud measures (prevent self-referrals)
-
-**Estimated Effort**: 1 week (implementation)
-
-**Expected Impact**: 10-20% reduction in CAC
+**Description**: Referral system to reduce CAC.
 
 ---
 
-## 🔵 Low Priority / Future Tasks
+## 🔵 Future Features (Year 2-3)
 
 ### LOW-001: Multi-language Support
-**Status**: Not Started
 **Priority**: LOW
-**Phase**: Year 2-3 (international expansion)
-**Description**:
-Add English (and potentially other languages) for international markets
+**Phase**: Year 2-3
+**Effort**: 2-3 weeks
 
-**Acceptance Criteria**:
-- [ ] Implement i18n framework (i18next for React)
-- [ ] Translate UI strings (Russian → English)
-- [ ] Handle recipe content localization (separate DB tables?)
-- [ ] Support multiple cuisines with local ingredient names
-
-**Estimated Effort**: 2-3 weeks
-
-**Notes**: Defer until product-market fit in Russia
+**Description**: Add English for international expansion.
 
 ---
 
 ### LOW-002: Video Recipe Parsing
-**Status**: Not Started
 **Priority**: LOW
-**Phase**: Year 2 (if budget allows)
-**Description**:
-Extract recipes from TikTok/YouTube videos using ASR + NLP
+**Phase**: Year 2
+**Effort**: 4-6 weeks
+**Budget**: 100,000-200,000 ₽
 
-**Acceptance Criteria**:
-- [ ] Research ASR providers (Yandex SpeechKit, Google Speech-to-Text)
-- [ ] Implement transcript extraction
-- [ ] Train NER model for ingredient extraction
-- [ ] Extract key frames for recipe steps
-- [ ] Calculate accuracy vs manual curation
-- [ ] Assess cost-benefit (expensive!)
+**Description**: Extract recipes from TikTok/YouTube using ASR + NLP.
 
-**Estimated Effort**: 4-6 weeks (R&D + implementation)
-
-**Budget**: 100,000-200,000 ₽ (ASR API costs + ML development)
-
-**Notes**: Likely not worth it for MVP - manual curation is cheaper and more accurate
+**Note**: Manual curation likely cheaper and more accurate for MVP.
 
 ---
 
 ### LOW-003: White-label B2B Solution
-**Status**: Not Started
 **Priority**: LOW
-**Phase**: Year 3 (after B2C product is mature)
-**Description**:
-Offer COOKie as white-label solution for retailers/meal delivery companies
+**Phase**: Year 3
+**Effort**: 8-12 weeks
 
-**Acceptance Criteria**:
-- [ ] Create multi-tenant architecture
-- [ ] Build customization interface (branding, colors)
-- [ ] Define pricing model (setup fee + monthly?)
-- [ ] Create sales materials and demo
+**Description**: Offer COOKie as white-label for retailers.
 
-**Estimated Effort**: 8-12 weeks
-
-**Notes**: Only pursue if B2C business is stable and profitable
+**Note**: Only pursue if B2C is stable.
 
 ---
 
@@ -321,80 +848,124 @@ Offer COOKie as white-label solution for retailers/meal delivery companies
 
 ### ✅ DONE-001: Enhanced Project Documentation
 **Completed**: 2025-10-13
-**Description**: Refactored project description and created comprehensive requirements spec
+
 **Outcome**:
 - COOKie-description.md updated
 - COOKie-requirements-v1.md created (100+ requirements)
-- 7 PUML architecture diagrams created
+- 7 PlantUML architecture diagrams
 
 ---
 
 ### ✅ DONE-002: C4 Architecture Diagrams
 **Completed**: 2025-10-13
-**Description**: Created comprehensive C4 model diagrams (Levels 1-3)
+
 **Outcome**:
-- System Context diagram
-- Container diagram (microservices)
-- Component diagram (Recipe Service)
+- System Context, Container, Component diagrams
 - Sequence diagrams (2)
 - Deployment diagram
 - Enhanced database schema
 
 ---
 
+### ✅ DONE-003: Frontend Technology Stack Definition
+**Completed**: 2025-10-15
+
+**Outcome**:
+- FRONTEND_STACK.md created (1000+ lines)
+- FRONTEND_FOLDER_STRUCTURE.md created (600+ lines)
+- Tech stack finalized: Next.js 14, TypeScript, Zustand, TanStack Query, TailwindCSS, custom components
+- All dependencies documented with justifications
+
+---
+
+### ✅ DONE-004: Repository Cleanup
+**Completed**: 2025-10-15
+
+**Outcome**:
+- Russian documentation archived
+- Cross-references updated
+- GitHub Actions workflow updated
+
+---
+
 ## 🗑️ Rejected / Won't Do
 
-### ❌ REJECTED-001: Multiple Payment Gateway Support (MVP)
-**Reason**: Over-engineering for MVP - single gateway (YooKassa) is sufficient
-**Decision Date**: 2025-10-13
+### ❌ REJECTED-001: Multiple Payment Gateways (MVP)
+**Reason**: Over-engineering - YooKassa sufficient
+**Date**: 2025-10-13
 
-### ❌ REJECTED-002: Full ELK Stack for MVP
-**Reason**: Too heavy for initial deployment - use cloud-native logging instead
-**Decision Date**: 2025-10-13
-**Alternative**: Yandex Cloud Logging + Sentry for errors
+### ❌ REJECTED-002: Full ELK Stack (MVP)
+**Reason**: Too heavy - use Yandex Cloud Logging + Sentry
+**Date**: 2025-10-13
 
-### ❌ REJECTED-003: ClickHouse Sharding for MVP
-**Reason**: Premature optimization - single node handles MVP scale
-**Decision Date**: 2025-10-13
-**Defer to**: Year 2 (when reaching 10M+ events/day)
+### ❌ REJECTED-003: ClickHouse Sharding (MVP)
+**Reason**: Premature optimization - defer to Year 2
+**Date**: 2025-10-13
 
 ---
 
 ## 📊 Backlog Metrics
 
-**Total Tasks**: 16
-- Critical: 4
-- High Priority: 3
-- Medium Priority: 3
-- Low Priority: 3
-- Completed: 2
-- Rejected: 3
+**Frontend Tasks**: 6 (FRONT-001 to FRONT-006)
+**Backend Tasks**: 8 (BACK-001 to BACK-008)
+**Integration Tasks**: 2 (INT-001, INT-002)
+**Critical Blockers**: 4 (Phase 2+)
+**Post-MVP Features**: 6 (HIGH/MED/LOW priority)
+**Completed**: 4
+**Rejected**: 3
 
-**Estimated Total Effort**: 25-35 weeks (across multiple phases)
+**Estimated MVP Effort**:
+- Frontend: ~24 days
+- Backend: ~20 days
+- Integration/Testing: ~8 days
+- **Total**: ~52 days (~10-11 weeks)
 
-**Budget Implications**: ~200,000-320,000 ₽ (legal, nutritionist, potential API costs)
+**Budget Implications**:
+- Legal consultation: 30-50K ₽
+- Nutritionist: 50-70K ₽
+- OpenAI costs: Monitor in Phase 2
+- **Total**: 80-120K ₽ (MVP)
+
+---
+
+## 📝 Backlog Management Guidelines
+
+### When to Add Tasks
+- Critical bugs during development
+- Features descoped from sprint
+- Technical debt identified
+- User feedback feature requests
+
+### When to Remove Tasks
+- ✅ Completed → move to "Completed Tasks"
+- ❌ No longer relevant → move to "Rejected"
+- Merged with another task
+
+### Priority Definitions
+- **CRITICAL**: Blocks production or poses legal/financial risk
+- **HIGH**: Important for product success, needed soon
+- **MEDIUM**: Nice to have, improves but not essential
+- **LOW**: Future enhancements, wait until mature
+
+### Task Naming Convention
+- `FRONT-XXX`: Frontend tasks
+- `BACK-XXX`: Backend tasks
+- `INT-XXX`: Integration tasks
+- `CRIT-XXX`: Critical blockers
+- `HIGH/MED/LOW-XXX`: Post-MVP features
 
 ---
 
-## Notes on Backlog Management
+## 🔗 Related Documentation
 
-**When to add tasks**:
-- Critical bugs discovered during development
-- Features that were descoped from current sprint
-- Technical debt that needs addressing
-- New feature ideas from user feedback
-
-**When to remove tasks**:
-- Task is completed → move to "Completed Tasks" section
-- Task is no longer relevant → move to "Rejected / Won't Do" section
-- Task is merged with another task
-
-**Priority Definitions**:
-- **CRITICAL**: Blocks production deployment or poses legal/financial risk
-- **HIGH**: Important for product success, should be done soon
-- **MEDIUM**: Nice to have, improves product but not essential
-- **LOW**: Future enhancements, can wait until product is mature
+- [MVP Architecture](../architecture/MVP_ARCHITECTURE.md) - Complete MVP specification
+- [Frontend Stack](../technical/FRONTEND_STACK.md) - Technology decisions
+- [Frontend Folder Structure](../technical/FRONTEND_FOLDER_STRUCTURE.md) - Project organization
+- [Requirements](../requirements/COOKie-requirements-v1.md) - Detailed requirements
 
 ---
+
+**Last Updated**: 2025-10-15
+**Next Review**: Weekly during MVP development
 
 **End of Backlog**
