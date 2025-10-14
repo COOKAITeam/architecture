@@ -112,7 +112,7 @@ COOKie_architecture/
 
 **COOKie** is a recipe discovery and meal planning platform that helps users:
 - Find recipes by ingredients, cuisine, or dietary preferences
-- Get accurate nutritional information (KBЖУ) for every recipe
+- Get accurate nutritional information (PFC) for every recipe
 - Plan meals with AI-powered recommendations
 - Order ingredients directly from partnered retailers
 
@@ -128,7 +128,7 @@ COOKie_architecture/
 - ✅ Recipe browsing and search (full-text + filters)
 - ✅ User authentication (email/password + OAuth)
 - ✅ Favorites and ratings (1-5 stars)
-- ✅ 250-300 curated recipes with accurate KBЖУ
+- ✅ 250-300 curated recipes with accurate PFC
 - ✅ Admin panel for content management
 - ✅ Responsive web interface
 
@@ -340,7 +340,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👥 Team
 
-**Lead Developer**: [Your Name]
+**Lead Developer**: Voldemar
 
 **Team**: Solo developer (open to future co-workers)
 
@@ -348,9 +348,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Contact
 
-- **Email**: [your-email@example.com]
-- **Telegram**: [@your-telegram]
-- **VK**: [vk.com/your-profile]
+- **Email**: voldemar22864@gmail.com
+- **Telegram**: @John_Silver64
 
 ---
 
