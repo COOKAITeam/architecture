@@ -138,6 +138,30 @@ architecture/
 - Common scenarios (updating docs, adding diagrams, refactoring)
 - Troubleshooting guide
 
+### Technical (docs/technical/)
+
+| File | Description | Priority |
+|------|-------------|----------|
+| [FRONTEND_STACK.md](../technical/FRONTEND_STACK.md) | **FRONTEND TECH STACK** - Complete technology decisions for frontend MVP | ⭐⭐⭐ |
+| [FRONTEND_FOLDER_STRUCTURE.md](../technical/FRONTEND_FOLDER_STRUCTURE.md) | **FOLDER STRUCTURE** - Project organization, naming conventions, code patterns | ⭐⭐⭐ |
+
+**FRONTEND_STACK.md covers**:
+- Next.js 14 + TypeScript configuration
+- State management (Zustand + TanStack Query)
+- UI approach (TailwindCSS + custom components)
+- Authentication (NextAuth.js)
+- Testing (Vitest + React Testing Library)
+- Docker development setup
+- All dependencies and justifications
+
+**FRONTEND_FOLDER_STRUCTURE.md covers**:
+- Complete project folder structure
+- Naming conventions (components, hooks, types)
+- Code organization patterns
+- Route groups (Next.js 14 App Router)
+- Testing structure
+- Performance best practices
+
 ---
 
 ## 🗺️ Diagram Files
@@ -292,7 +316,7 @@ A: No. Start with:
 ---
 
 **Repository**: `cookie-org/architecture`
-**Last Updated**: 2025-10-13
+**Last Updated**: 2025-10-15
 **Status**: 🟢 Ready for MVP development
 
 ---
