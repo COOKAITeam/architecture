@@ -1,0 +1,551 @@
+@startuml api_user_endpoints
+
+!define TITLE COOKie MVP - User & Favorites API Endpoints
+!define VERSION 1.0
+!define DATE 2025-10-16
+
+title TITLE\nVersion VERSION\nLast Updated: DATE
+
+' Cross-references:
+' - api_endpoints_overview.puml (API overview)
+' - database/enhanced_database_schema.puml (users, user_favorites tables)
+' - sequence/sequence_user_add_favorite.puml (Add favorite flow)
+' - error-handling/error_codes_mapping.puml (Error responses)
+
+skinparam componentStyle rectangle
+skinparam noteStyle rectangle
+
+component "GET /api/v1/users/me" as get_profile {
+  **Purpose**: Get current user profile
+  **Authentication**: JWT Required (🔐 Bearer Token)
+  **Rate Limit**: 5000 requests/hour per user
+  **Cache**: No caching (always fresh data)
+  --
+  **Request Headers:**
+  Authorization: Bearer {access_token}
+  --
+  **Response 200 OK:**
+  {
+    "id": "uuid",
+    "email": "user@example.com",
+    "username": "ivan_petrov", // optional
+    "first_name": "Иван",
+    "last_name": "Петров",
+    "avatar_url": "https://cdn.cookie.com/avatars/user123.jpg",
+    "role": "user",
+    "subscription_tier": "free",
+    "subscription_valid_until": null,
+    "is_active": true,
+    "email_verified": true,
+    "email_verified_at": "2025-01-20T10:00:00Z",
+    "last_login_at": "2025-10-16T14:30:00Z",
+    "created_at": "2025-01-15T12:00:00Z",
+    "updated_at": "2025-10-10T08:15:00Z",
+    "profile": {
+      "date_of_birth": "1990-05-15",
+      "gender": "male",
+      "height_cm": 180,
+      "weight_kg": 75.5,
+      "activity_level": "moderate",
+      "goal": "maintenance",
+      "target_calories": 2200,
+      "dietary_preferences": ["vegetarian"],
+      "allergies": ["nuts"],
+      "disliked_ingredients": ["uuid1", "uuid2"],
+      "cuisine_preferences": ["italian", "asian"],
+      "cooking_skill_level": 3,
+      "max_cooking_time": 60
+    },
+    "stats": {
+      "favorite_count": 24,
+      "ratings_count": 12,
+      "recipes_viewed": 156
+    }
+  }
+  --
+  **Response 401 Unauthorized:**
+  {
+    "type": "https://api.cookie.com/errors/unauthorized",
+    "title": "Authentication Required",
+    "status": 401,
+    "detail": "Valid access token is required",
+    "instance": "/api/v1/users/me"
+  }
+}
+
+component "PATCH /api/v1/users/me" as update_profile {
+  **Purpose**: Update current user profile
+  **Authentication**: JWT Required (🔐 Bearer Token)
+  **Rate Limit**: 100 requests/hour per user
+  --
+  **Request Headers:**
+  Authorization: Bearer {access_token}
+  Content-Type: application/json
+  --
+  **Request Body (all fields optional):**
+  {
+    "first_name": "Иван",
+    "last_name": "Петров",
+    "username": "ivan_petrov",
+    "avatar_url": "https://cdn.cookie.com/avatars/new.jpg",
+    "profile": {
+      "date_of_birth": "1990-05-15",
+      "gender": "male",
+      "height_cm": 180,
+      "weight_kg": 75.5,
+      "activity_level": "moderate",
+      "goal": "weight_loss",
+      "target_weight_kg": 70.0,
+      "target_calories": 1800,
+      "dietary_preferences": ["vegetarian", "low-carb"],
+      "allergies": ["nuts", "shellfish"],
+      "disliked_ingredients": ["uuid1", "uuid2", "uuid3"],
+      "cuisine_preferences": ["italian", "asian", "russian"],
+      "cooking_skill_level": 4,
+      "max_cooking_time": 45
+    }
+  }
+  --
+  **Validation Rules:**
+  • username:
+    - Unique (if provided)
+    - 3-30 characters
+    - Alphanumeric + underscore only
+
+  • height_cm:
+    - Range: 100-250
+
+  • weight_kg:
+    - Range: 30.0-300.0
+
+  • cooking_skill_level:
+    - Range: 1-5
+
+  • max_cooking_time:
+    - Range: 10-300 minutes
+
+  • dietary_preferences:
+    - Valid values: vegan, vegetarian, pescatarian,
+      keto, paleo, low-carb, high-protein
+
+  • activity_level:
+    - Values: sedentary, light, moderate, active, very_active
+
+  • goal:
+    - Values: weight_loss, weight_gain, maintenance,
+      muscle_gain, health
+  --
+  **Response 200 OK:**
+  {
+    "id": "uuid",
+    "email": "user@example.com",
+    "username": "ivan_petrov",
+    "first_name": "Иван",
+    "last_name": "Петров",
+    "updated_at": "2025-10-16T15:00:00Z",
+    "profile": { /* updated profile data */ }
+  }
+  --
+  **Response 409 Conflict:**
+  {
+    "type": "https://api.cookie.com/errors/duplicate-username",
+    "title": "Username Already Taken",
+    "status": 409,
+    "detail": "Username 'ivan_petrov' is already in use",
+    "instance": "/api/v1/users/me"
+  }
+  --
+  **Response 422 Unprocessable Entity:**
+  {
+    "type": "https://api.cookie.com/errors/validation-error",
+    "title": "Validation Failed",
+    "status": 422,
+    "detail": "Request validation errors",
+    "instance": "/api/v1/users/me",
+    "errors": [
+      {
+        "field": "profile.height_cm",
+        "message": "Height must be between 100 and 250"
+      }
+    ]
+  }
+  --
+  **Side Effects:**
+  - Updates user and user_profile tables
+  - Updates updated_at timestamp
+  - Sends user_profile_updated event to Analytics
+}
+
+component "GET /api/v1/users/me/favorites" as get_favorites {
+  **Purpose**: Get user's favorite recipes
+  **Authentication**: JWT Required (🔐 Bearer Token)
+  **Rate Limit**: 5000 requests/hour per user
+  **Cache**: No caching (user-specific data)
+  --
+  **Request Headers:**
+  Authorization: Bearer {access_token}
+  --
+  **Query Parameters:**
+  • page (integer, optional): Page number
+    - Default: 1
+    - Min: 1
+
+  • per_page (integer, optional): Items per page
+    - Default: 20
+    - Min: 1, Max: 50
+
+  • sort (string, optional): Sort field
+    - Default: created_at (most recently favorited)
+    - Values: created_at, title, rating, total_time
+
+  • order (string, optional): Sort direction
+    - Default: desc
+    - Values: asc, desc
+
+  • cuisine (string[], optional): Filter by cuisine
+    - Multiple values: comma-separated
+
+  • difficulty (integer[], optional): Filter by difficulty
+    - Range: 1-5
+  --
+  **Response 200 OK:**
+  {
+    "data": [
+      {
+        "recipe": {
+          "id": "uuid",
+          "slug": "italian-pasta-carbonara",
+          "title": "Паста Карбонара",
+          "description": "Классический итальянский рецепт...",
+          "cuisine_geography": ["italy"],
+          "difficulty_level": 3,
+          "total_time_minutes": 30,
+          "image_urls": [
+            "https://cdn.cookie.com/recipes/pasta-carbonara.webp"
+          ],
+          "rating_avg": 4.75,
+          "rating_count": 248,
+          "nutrition_per_serving": {
+            "calories": 520,
+            "protein_g": 18.5,
+            "fat_g": 24.0,
+            "carbs_g": 52.0
+          }
+        },
+        "favorited_at": "2025-10-10T12:30:00Z"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "per_page": 20,
+      "total_pages": 2,
+      "total_items": 24,
+      "has_next": true,
+      "has_prev": false
+    },
+    "meta": {
+      "favorites_limit": 50,
+      "favorites_used": 24,
+      "can_add_more": true
+    }
+  }
+  --
+  **Notes:**
+  - Free users: max 50 favorites
+  - Premium/Pro users: unlimited favorites
+  - Sorted by favorited_at (most recent first) by default
+}
+
+component "POST /api/v1/recipes/{id}/favorite" as add_favorite {
+  **Purpose**: Add recipe to user's favorites
+  **Authentication**: JWT Required (🔐 Bearer Token)
+  **Rate Limit**: 1000 requests/hour per user
+  --
+  **Request Headers:**
+  Authorization: Bearer {access_token}
+  --
+  **Path Parameters:**
+  • id (uuid, required): Recipe ID
+  --
+  **Response 201 Created:**
+  {
+    "recipe_id": "uuid",
+    "user_id": "uuid",
+    "favorited_at": "2025-10-16T15:30:00Z",
+    "message": "Recipe added to favorites"
+  }
+  --
+  **Response 404 Not Found:**
+  {
+    "type": "https://api.cookie.com/errors/not-found",
+    "title": "Recipe Not Found",
+    "status": 404,
+    "detail": "Recipe with id 'uuid' does not exist",
+    "instance": "/api/v1/recipes/uuid/favorite"
+  }
+  --
+  **Response 409 Conflict:**
+  {
+    "type": "https://api.cookie.com/errors/already-favorited",
+    "title": "Recipe Already Favorited",
+    "status": 409,
+    "detail": "Recipe is already in your favorites",
+    "instance": "/api/v1/recipes/uuid/favorite",
+    "favorited_at": "2025-10-10T12:30:00Z"
+  }
+  --
+  **Response 403 Forbidden:**
+  {
+    "type": "https://api.cookie.com/errors/favorites-limit",
+    "title": "Favorites Limit Reached",
+    "status": 403,
+    "detail": "Free users can save up to 50 favorite recipes",
+    "instance": "/api/v1/recipes/uuid/favorite",
+    "current_count": 50,
+    "limit": 50,
+    "upgrade_url": "https://cookie.com/premium"
+  }
+  --
+  **Side Effects:**
+  - Creates record in user_favorites table
+  - Increments recipe.favorite_count
+  - Sends recipe_favorite event to Analytics
+  - Invalidates cache for GET /users/me/favorites
+}
+
+component "DELETE /api/v1/recipes/{id}/favorite" as remove_favorite {
+  **Purpose**: Remove recipe from user's favorites
+  **Authentication**: JWT Required (🔐 Bearer Token)
+  **Rate Limit**: 1000 requests/hour per user
+  --
+  **Request Headers:**
+  Authorization: Bearer {access_token}
+  --
+  **Path Parameters:**
+  • id (uuid, required): Recipe ID
+  --
+  **Response 204 No Content:**
+  - No response body
+  - Recipe successfully removed from favorites
+  --
+  **Response 404 Not Found:**
+  {
+    "type": "https://api.cookie.com/errors/not-found",
+    "title": "Favorite Not Found",
+    "status": 404,
+    "detail": "Recipe is not in your favorites",
+    "instance": "/api/v1/recipes/uuid/favorite"
+  }
+  --
+  **Side Effects:**
+  - Deletes record from user_favorites table
+  - Decrements recipe.favorite_count
+  - Sends recipe_unfavorite event to Analytics
+  - Invalidates cache for GET /users/me/favorites
+}
+
+component "POST /api/v1/recipes/{id}/rating" as submit_rating {
+  **Purpose**: Rate a recipe (1-5 stars)
+  **Authentication**: JWT Required (🔐 Bearer Token)
+  **Rate Limit**: 500 requests/hour per user
+  --
+  **Request Headers:**
+  Authorization: Bearer {access_token}
+  Content-Type: application/json
+  --
+  **Path Parameters:**
+  • id (uuid, required): Recipe ID
+  --
+  **Request Body:**
+  {
+    "rating": 5,
+    "review": "Отличный рецепт! Получилось очень вкусно." // optional
+  }
+  --
+  **Validation Rules:**
+  • rating:
+    - Required
+    - Integer, range: 1-5
+
+  • review:
+    - Optional
+    - Max length: 2000 characters
+    - Min length: 10 characters (if provided)
+  --
+  **Response 201 Created:**
+  {
+    "id": "uuid",
+    "user_id": "uuid",
+    "recipe_id": "uuid",
+    "rating": 5,
+    "review": "Отличный рецепт!...",
+    "helpful_count": 0,
+    "created_at": "2025-10-16T15:45:00Z",
+    "message": "Rating submitted successfully"
+  }
+  --
+  **Response 404 Not Found:**
+  {
+    "type": "https://api.cookie.com/errors/not-found",
+    "title": "Recipe Not Found",
+    "status": 404,
+    "detail": "Recipe with id 'uuid' does not exist",
+    "instance": "/api/v1/recipes/uuid/rating"
+  }
+  --
+  **Response 409 Conflict:**
+  {
+    "type": "https://api.cookie.com/errors/already-rated",
+    "title": "Recipe Already Rated",
+    "status": 409,
+    "detail": "You have already rated this recipe. Use PATCH to update.",
+    "instance": "/api/v1/recipes/uuid/rating",
+    "existing_rating": {
+      "id": "uuid",
+      "rating": 4,
+      "created_at": "2025-10-10T12:00:00Z"
+    }
+  }
+  --
+  **Side Effects:**
+  - Creates record in user_recipe_ratings table
+  - Recalculates recipe.rating_avg
+  - Increments recipe.rating_count
+  - Sends recipe_rate event to Analytics
+  - Invalidates cache for recipe details
+}
+
+component "PATCH /api/v1/recipes/{id}/rating" as update_rating {
+  **Purpose**: Update existing rating for a recipe
+  **Authentication**: JWT Required (🔐 Bearer Token)
+  **Rate Limit**: 500 requests/hour per user
+  --
+  **Path Parameters:**
+  • id (uuid, required): Recipe ID
+  --
+  **Request Body:**
+  {
+    "rating": 4,
+    "review": "Обновленный отзыв..."
+  }
+  --
+  **Response 200 OK:**
+  {
+    "id": "uuid",
+    "user_id": "uuid",
+    "recipe_id": "uuid",
+    "rating": 4,
+    "review": "Обновленный отзыв...",
+    "helpful_count": 5,
+    "created_at": "2025-10-10T12:00:00Z",
+    "updated_at": "2025-10-16T15:50:00Z",
+    "message": "Rating updated successfully"
+  }
+  --
+  **Response 404 Not Found:**
+  {
+    "type": "https://api.cookie.com/errors/not-found",
+    "title": "Rating Not Found",
+    "status": 404,
+    "detail": "You have not rated this recipe yet",
+    "instance": "/api/v1/recipes/uuid/rating"
+  }
+  --
+  **Side Effects:**
+  - Updates record in user_recipe_ratings table
+  - Recalculates recipe.rating_avg
+  - Updates updated_at timestamp
+  - Invalidates cache for recipe details
+}
+
+component "DELETE /api/v1/recipes/{id}/rating" as delete_rating {
+  **Purpose**: Delete user's rating for a recipe
+  **Authentication**: JWT Required (🔐 Bearer Token)
+  **Rate Limit**: 500 requests/hour per user
+  --
+  **Path Parameters:**
+  • id (uuid, required): Recipe ID
+  --
+  **Response 204 No Content:**
+  - No response body
+  - Rating successfully deleted
+  --
+  **Response 404 Not Found:**
+  {
+    "type": "https://api.cookie.com/errors/not-found",
+    "title": "Rating Not Found",
+    "status": 404,
+    "detail": "You have not rated this recipe",
+    "instance": "/api/v1/recipes/uuid/rating"
+  }
+  --
+  **Side Effects:**
+  - Deletes record from user_recipe_ratings table
+  - Recalculates recipe.rating_avg
+  - Decrements recipe.rating_count
+  - Invalidates cache for recipe details
+}
+
+note right of get_profile
+  **User Profile Structure:**
+  - Core user data (email, name, role)
+  - User profile data (physical params, goals)
+  - Subscription info (tier, expiry)
+  - Account status (active, verified)
+  - User statistics (favorites, ratings)
+
+  **Profile Privacy:**
+  - Users can only access their own profile
+  - Admin can access any user profile
+  - Public profile view (future feature)
+end note
+
+note right of get_favorites
+  **Favorites Limits by Tier:**
+
+  **Free Users:**
+  - Max 50 favorite recipes
+  - HTTP 403 when limit reached
+  - Upgrade prompt in error response
+
+  **Premium/Pro Users:**
+  - Unlimited favorites
+  - No restrictions
+
+  **Filters & Sort:**
+  - Apply same filters as recipe search
+  - Sort by: date added, title, rating, time
+  - Pagination: 20 per page (default)
+end note
+
+note bottom of add_favorite
+  **Optimistic UI Pattern:**
+  Frontend should optimistically add recipe
+  to favorites before API response, then:
+  - On 201: Keep UI as is
+  - On 409: Show "Already favorited" message
+  - On 403: Show upgrade prompt
+  - On error: Revert UI, show error
+
+  **Database Constraint:**
+  UNIQUE (user_id, recipe_id) prevents duplicates
+end note
+
+note bottom of submit_rating
+  **Rating Aggregation:**
+  recipe.rating_avg = AVG(all ratings)
+  recipe.rating_count = COUNT(all ratings)
+
+  **Recalculation:**
+  - Triggered on INSERT/UPDATE/DELETE rating
+  - Background job updates recipe table
+  - Real-time for small datasets
+  - Batch job for high-traffic recipes
+
+  **Review Moderation:**
+  - Auto-filter profanity (future)
+  - Manual moderation queue (future)
+  - Users can edit review within 24h
+end note
+
+@enduml

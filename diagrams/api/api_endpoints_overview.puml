@@ -1,0 +1,260 @@
+@startuml api_endpoints_overview
+
+!define TITLE COOKie MVP - API Endpoints Overview
+!define VERSION 1.0
+!define DATE 2025-10-16
+
+title TITLE\nVersion VERSION\nLast Updated: DATE
+
+' Cross-references:
+' - api_recipe_endpoints.puml (Public recipe browsing)
+' - api_auth_endpoints.puml (Authentication & sessions)
+' - api_user_endpoints.puml (User profile & favorites)
+' - api_admin_endpoints.puml (Admin recipe management)
+' - api_upload_endpoints.puml (Image uploads)
+' - database/enhanced_database_schema.puml (Database schema)
+' - error-handling/error_codes_mapping.puml (Error responses)
+
+skinparam packageStyle rectangle
+skinparam componentStyle rectangle
+
+package "COOKie API v1" {
+
+  component "Base URL" as base {
+    **Production**: https://api.cookie.com/api/v1
+    **Development**: http://localhost:5000/api/v1
+  }
+
+  package "Public Endpoints 🔓" {
+    component "Recipe API" as recipes {
+      **GET /recipes**
+      **GET /recipes/{slug}**
+      **GET /recipes/popular**
+      **GET /recipes/cuisines**
+      --
+      Authentication: None required
+      Rate Limit: 1000 req/hour per IP
+      Cache: Redis 5min TTL
+    }
+  }
+
+  package "Authenticated Endpoints 🔐" {
+    component "Auth API" as auth {
+      **POST /auth/register**
+      **POST /auth/login**
+      **POST /auth/refresh**
+      **POST /auth/logout**
+      **GET /auth/oauth/{provider}**
+      **POST /auth/password/reset**
+      --
+      Authentication: JWT (except register/login)
+      Rate Limit: 5000 req/hour per user
+    }
+
+    component "User API" as users {
+      **GET /users/me**
+      **PATCH /users/me**
+      **GET /users/me/favorites**
+      --
+      Authentication: JWT Required
+      Rate Limit: 5000 req/hour per user
+    }
+
+    component "Favorites API" as favorites {
+      **POST /recipes/{id}/favorite**
+      **DELETE /recipes/{id}/favorite**
+      --
+      Authentication: JWT Required
+      Limits: Free 50 max, Premium unlimited
+    }
+
+    component "Rating API" as ratings {
+      **POST /recipes/{id}/rating**
+      **PATCH /recipes/{id}/rating**
+      **DELETE /recipes/{id}/rating**
+      --
+      Authentication: JWT Required
+      Constraint: 1 rating per user per recipe
+    }
+  }
+
+  package "Admin Endpoints 👑" {
+    component "Admin Recipe API" as admin {
+      **POST /admin/recipes**
+      **PATCH /admin/recipes/{id}**
+      **DELETE /admin/recipes/{id}**
+      **POST /admin/recipes/{id}/publish**
+      **POST /admin/recipes/batch**
+      **GET /admin/stats**
+      --
+      Authentication: JWT + Admin Role
+      Rate Limit: Unlimited
+    }
+
+    component "Upload API" as upload {
+      **POST /upload/image**
+      **POST /upload/images/batch**
+      --
+      Authentication: JWT + Admin Role
+      Max Size: 5MB per image
+      Formats: JPG, PNG, WebP
+    }
+  }
+}
+
+note right of base
+  **API Versioning**
+  - Current version: v1
+  - Version in URL path
+  - Backward compatibility guaranteed
+  - New endpoints added without breaking changes
+end note
+
+note bottom of "Public Endpoints 🔓"
+  **No Authentication Required**
+  - Anonymous access allowed
+  - Rate limited by IP address
+  - Basic functionality for user acquisition
+end note
+
+note bottom of "Authenticated Endpoints 🔐"
+  **JWT Token Required**
+  - Access token in Authorization header
+  - Format: "Bearer <token>"
+  - Access token expires: 15 minutes
+  - Refresh token expires: 30 days
+  - Refresh token stored in HttpOnly cookie
+end note
+
+note bottom of "Admin Endpoints 👑"
+  **Admin Role Required**
+  - JWT token + role="admin"
+  - Role-based authorization check
+  - Full access to recipe management
+  - No rate limits
+end note
+
+component "Global Response Headers" as headers {
+  **Content-Type**: application/json
+  **X-Request-ID**: UUID (for tracing)
+  **X-RateLimit-Limit**: Max requests per window
+  **X-RateLimit-Remaining**: Remaining requests
+  **X-RateLimit-Reset**: Timestamp when limit resets
+  **Cache-Control**: Caching directives
+  **ETag**: Entity tag for conditional requests
+}
+
+component "Error Response Format (RFC 7807)" as errors {
+  {
+    "type": "https://api.cookie.com/errors/{error-type}",
+    "title": "Error Title",
+    "status": 4xx or 5xx,
+    "detail": "Human-readable explanation",
+    "instance": "/api/v1/endpoint",
+    "errors": [
+      {
+        "field": "field_name",
+        "message": "Field-specific error"
+      }
+    ]
+  }
+}
+
+component "Common HTTP Status Codes" as statuses {
+  **2xx Success**
+  200 OK - Successful GET/PATCH/DELETE
+  201 Created - Successful POST (resource created)
+  204 No Content - Successful DELETE (no body)
+
+  **3xx Redirection**
+  304 Not Modified - ETag match (cached)
+
+  **4xx Client Errors**
+  400 Bad Request - Invalid syntax/parameters
+  401 Unauthorized - Missing/invalid auth token
+  403 Forbidden - Insufficient permissions
+  404 Not Found - Resource doesn't exist
+  409 Conflict - Duplicate resource
+  422 Unprocessable Entity - Validation failed
+  429 Too Many Requests - Rate limit exceeded
+
+  **5xx Server Errors**
+  500 Internal Server Error - Unexpected error
+  502 Bad Gateway - Upstream service error
+  503 Service Unavailable - Temporary unavailable
+  504 Gateway Timeout - Upstream timeout
+}
+
+component "Rate Limiting Policy" as ratelimit {
+  **Anonymous Users** (by IP)
+  - 1000 requests/hour
+  - Applies to public endpoints only
+
+  **Authenticated Users** (by user_id)
+  - Free: 5000 requests/hour
+  - Premium/Pro: 10000 requests/hour
+
+  **Admin Users**
+  - Unlimited requests
+
+  **Response when exceeded:**
+  - HTTP 429 Too Many Requests
+  - Retry-After header (seconds until reset)
+  - Error type: rate-limit-exceeded
+}
+
+component "Pagination" as pagination {
+  **Query Parameters:**
+  - page: Page number (default: 1)
+  - per_page: Items per page (default: 20, max: 50)
+  - sort: Sort field (e.g., "rating_avg", "created_at")
+  - order: Sort direction ("asc" or "desc")
+
+  **Response Metadata:**
+  {
+    "data": [...],
+    "pagination": {
+      "page": 1,
+      "per_page": 20,
+      "total_pages": 50,
+      "total_items": 1000,
+      "has_next": true,
+      "has_prev": false
+    }
+  }
+}
+
+component "Caching Strategy" as cache {
+  **Redis Cache (for GET endpoints)**
+  - Recipe list: 5 minutes TTL
+  - Recipe details: 10 minutes TTL
+  - Popular recipes: 15 minutes TTL
+  - Cuisines list: 1 hour TTL
+
+  **HTTP Caching Headers:**
+  - Cache-Control: public, max-age=300
+  - ETag: MD5 hash of response
+  - If-None-Match: Client sends ETag
+  - 304 Not Modified if ETag matches
+
+  **Cache Invalidation:**
+  - On recipe create/update/delete
+  - Pattern-based key deletion (Redis SCAN)
+}
+
+component "Security Headers" as security {
+  **Required Headers:**
+  - X-Content-Type-Options: nosniff
+  - X-Frame-Options: DENY
+  - X-XSS-Protection: 1; mode=block
+  - Strict-Transport-Security: max-age=31536000
+
+  **CORS Configuration:**
+  - Allowed Origins: https://cookie.com, https://www.cookie.com
+  - Allowed Methods: GET, POST, PATCH, DELETE, OPTIONS
+  - Allowed Headers: Authorization, Content-Type, X-Request-ID
+  - Allow Credentials: true
+  - Max Age: 86400 (24 hours)
+}
+
+@enduml
