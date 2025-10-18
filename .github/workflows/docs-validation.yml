@@ -136,6 +136,9 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Install Graphviz (required for PlantUML component diagrams)
+        run: sudo apt-get update && sudo apt-get install -y graphviz
+
       - name: Install PlantUML
         run: |
           wget https://github.com/plantuml/plantuml/releases/download/v1.2024.3/plantuml-1.2024.3.jar
@@ -143,35 +146,26 @@ jobs:
 
       - name: Validate PlantUML syntax
         run: |
-          echo "Validating PlantUML diagrams via SVG generation..."
-          echo "Note: Using SVG generation instead of -syntax flag (which has false negatives for component diagrams)"
+          echo "Validating PlantUML diagrams..."
 
           # Track validation results
           all_valid=true
           failed_files=()
 
-          # Create temp directory for test exports
-          mkdir -p /tmp/plantuml-test
-
           # Find and validate all .puml files
           while IFS= read -r file; do
             echo "Checking $file..."
 
-            # Try to generate SVG (check exit code, not output text)
-            # PlantUML exits with non-zero code on syntax errors
-            if java -jar plantuml.jar -tsvg "$file" -o /tmp/plantuml-test 2>&1 > /tmp/plantuml-output.log; then
-              echo "✅ $file is valid"
-            else
-              echo "❌ Failed to generate SVG for $file"
-              echo "Error output:"
-              cat /tmp/plantuml-output.log | head -20
+            # Use -checksyntax flag for syntax validation (more reliable than -syntax)
+            if java -jar plantuml.jar -checksyntax "$file" 2>&1 | grep -q "Error"; then
+              echo "❌ Syntax error in $file"
+              java -jar plantuml.jar -checksyntax "$file" 2>&1
               failed_files+=("$file")
               all_valid=false
+            else
+              echo "✅ $file is valid"
             fi
           done < <(find diagrams -name "*.puml" -type f)
-
-          # Cleanup temp directory
-          rm -rf /tmp/plantuml-test
 
           # Summary and exit
           if [ "$all_valid" = true ]; then

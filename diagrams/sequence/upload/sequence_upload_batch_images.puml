@@ -7,10 +7,10 @@ participant "BatchUploadController" as Controller
 participant "JWT Service" as JWT
 participant "Image Validation Service" as Validation
 participant "Background Job Queue" as JobQueue
-participant "Image Processing Service\n(Parallel Workers)" as Processing
+participant "Image Processing Service" as Processing
 participant "Storage Service" as Storage
-cloud "Yandex Object Storage\ncdn.cookie.com" as ObjectStorage
-database "PostgreSQL\nimages + upload_jobs" as DB
+cloud "Yandex Object Storage" as ObjectStorage
+database "PostgreSQL" as DB
 
 == Batch Image Upload Flow (Multiple Files) ==
 
