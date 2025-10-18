@@ -197,8 +197,8 @@ Create comprehensive API specification diagrams for all MVP endpoints to enable 
 **Completion Notes (2025-10-18)**:
 - All 6 PlantUML diagram files created with comprehensive API specifications
 - ⚠️ **Syntax Issue Discovered**: Original files used invalid PlantUML `component {...}` syntax
-- ✅ **Syntax Fixed**: All 40+ components converted to valid `rectangle` + `note` pattern
-- ✅ **CI Updated**: GitHub Actions workflow now properly validates PlantUML syntax and fails on errors
+- ✅ **Syntax Fixed**: All 40+ components converted to valid UML 2.0 component notation
+- ✅ **CI Fixed**: GitHub Actions workflow now validates via SVG generation (not `-syntax` flag which has false negatives)
 - All diagrams now render correctly without syntax errors
 - Specifications include full request/response schemas, validation rules, error codes, side effects
 - Ready for backend team to start implementation (BACK-004, BACK-005, BACK-007, BACK-008)
@@ -307,31 +307,53 @@ Create comprehensive API specification diagrams for all MVP endpoints to enable 
 ---
 
 ### ARCH-002: Complete Authentication Flows
-**Status**: Not Started
+**Status**: ✅ Mostly Completed (2025-10-18) - 80% complete
 **Priority**: CRITICAL
 **Phase**: Week 0-1 (Oct 15-22)
-**Estimated Effort**: 2 days
+**Estimated Effort**: 2 days (Actual: 1 day, completed alongside ARCH-001 refactoring)
 **GitHub Issue**: https://github.com/COOKAITeam/architecture/issues/7
 
 **Description**:
 Detailed sequence diagrams for all authentication scenarios including OAuth flows.
 
 **Deliverables**:
-- [ ] `diagrams/sequence/sequence_auth_register.puml` - Email/password registration
-- [ ] `diagrams/sequence/sequence_auth_login.puml` - Login with JWT
-- [ ] `diagrams/sequence/sequence_auth_oauth_yandex.puml` - Yandex ID OAuth flow
-- [ ] `diagrams/sequence/sequence_auth_oauth_vk.puml` - VK ID OAuth flow
-- [ ] `diagrams/sequence/sequence_auth_token_refresh.puml` - Token refresh flow
+- [x] `diagrams/sequence/auth/sequence_auth_register.puml` - Email/password registration ✅
+- [x] `diagrams/sequence/auth/sequence_auth_login.puml` - Login with JWT + brute-force protection ✅
+- [x] `diagrams/sequence/auth/sequence_auth_oauth_yandex.puml` - Yandex ID + VK ID OAuth flows ✅
+- [ ] `diagrams/sequence/auth/sequence_auth_oauth_vk.puml` - VK ID OAuth flow ⚠️ (Combined with Yandex diagram)
+- [x] `diagrams/sequence/auth/sequence_auth_token_refresh.puml` - Token refresh flow with blacklist ✅
+- [x] **BONUS**: `diagrams/sequence/auth/sequence_auth_password_reset.puml` - Two-step password reset ✅
 
-**Key Focus**: Show ALL error cases (invalid credentials, expired tokens, OAuth failures)
+**Key Focus**: Show ALL error cases (invalid credentials, expired tokens, OAuth failures) - ✅ **COMPLETED**
+
+**Completion Notes (2025-10-18)**:
+- ✅ 4 out of 5 required diagrams completed
+- ✅ VK OAuth flow documented (combined with Yandex in single diagram - both use same pattern)
+- ✅ Bonus: Password reset flow added (2-step with email verification)
+- ✅ All diagrams include comprehensive error scenarios:
+  - 401 Unauthorized (invalid credentials, expired tokens)
+  - 403 Forbidden (account locked, brute-force protection)
+  - 404 Not Found (user not found, prevents enumeration)
+  - 422 Unprocessable Entity (validation errors)
+  - 500 Internal Server Error (database failures, transaction errors)
+  - 503 Service Unavailable (rate limits, OAuth provider down)
+- ✅ Security features documented: JWT tokens, bcrypt hashing, CSRF protection, audit logs, rate limiting
+- ✅ Database transactions shown (BEGIN/COMMIT/ROLLBACK)
+- ✅ Redis blacklist for token revocation
+- ✅ RFC 7807 error response format
+
+**What's Missing**:
+- ⚠️ Separate `sequence_auth_oauth_vk.puml` file (VK flow is documented, just not in separate file)
+  - Decision: VK and Yandex OAuth use identical flow patterns, combined into single diagram for simplicity
+  - Can split into separate file if needed (5-minute task)
 
 **Related Backend Issues**:
-- **REQUIRED** for COOKAITeam/cookie-backend#3 (BACK-003: Authentication)
+- **REQUIRED** for COOKAITeam/cookie-backend#3 (BACK-003: Authentication) - ✅ **READY**
 
 **Related Frontend Issues**:
-- **REQUIRED** for COOKAITeam/cookie-frontend#2 (FRONT-002: Authentication Flow)
+- **REQUIRED** for COOKAITeam/cookie-frontend#2 (FRONT-002: Authentication Flow) - ✅ **READY**
 
-**Branch**: `diagram/arch-002-auth-flows`
+**Branch**: `refactor/arch-001-proper-uml-notation` (combined with ARCH-001 refactoring)
 
 ---
 
