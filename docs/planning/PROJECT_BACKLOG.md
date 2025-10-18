@@ -156,29 +156,29 @@ Phase 3: Integration (Week 10-12)
 > **GitHub Milestone**: [MVP Architecture Completion](https://github.com/COOKAITeam/architecture/milestone/1)
 
 ### ARCH-001: API Endpoint Specifications (OpenAPI-ready)
-**Status**: Not Started
+**Status**: ✅ Completed (2025-10-18)
 **Priority**: CRITICAL
 **Phase**: Week 0-1 (Oct 15-22)
-**Estimated Effort**: 2 days
+**Estimated Effort**: 2 days (Actual: 2 days + syntax fixes)
 **GitHub Issue**: https://github.com/COOKAITeam/architecture/issues/6
 
 **Description**:
 Create comprehensive API specification diagrams for all MVP endpoints to enable immediate Swagger/OpenAPI generation and backend implementation.
 
 **Deliverables**:
-- [ ] `diagrams/api/api_endpoints_overview.puml` - Overview of all API endpoints
-- [ ] `diagrams/api/api_recipe_endpoints.puml` - Recipe endpoints (GET /recipes, GET /recipes/{slug})
-- [ ] `diagrams/api/api_auth_endpoints.puml` - Auth endpoints (POST /auth/register, POST /auth/login, OAuth)
-- [ ] `diagrams/api/api_user_endpoints.puml` - User profile and favorites endpoints
-- [ ] `diagrams/api/api_admin_endpoints.puml` - Admin CRUD endpoints
-- [ ] `diagrams/api/api_upload_endpoints.puml` - Image upload endpoint
+- [x] `diagrams/api/api_endpoints_overview.puml` - Overview of all API endpoints
+- [x] `diagrams/api/api_recipe_endpoints.puml` - Recipe endpoints (GET /recipes, GET /recipes/{slug})
+- [x] `diagrams/api/api_auth_endpoints.puml` - Auth endpoints (POST /auth/register, POST /auth/login, OAuth)
+- [x] `diagrams/api/api_user_endpoints.puml` - User profile and favorites endpoints
+- [x] `diagrams/api/api_admin_endpoints.puml` - Admin CRUD endpoints
+- [x] `diagrams/api/api_upload_endpoints.puml` - Image upload endpoint
 
 **Acceptance Criteria**:
-- [ ] All endpoint specs include: HTTP method, path, query/body params, response schemas, error codes
-- [ ] Schemas match database types (from enhanced_database_schema.puml)
-- [ ] Error responses follow RFC 7807 Problem Details format
-- [ ] Authentication requirements clearly marked
-- [ ] Rate limits documented
+- [x] All endpoint specs include: HTTP method, path, query/body params, response schemas, error codes
+- [x] Schemas match database types (from enhanced_database_schema.puml)
+- [x] Error responses follow RFC 7807 Problem Details format
+- [x] Authentication requirements clearly marked
+- [x] Rate limits documented
 
 **Impact on Backend**:
 - Backend team can generate OpenAPI spec directly
@@ -193,6 +193,35 @@ Create comprehensive API specification diagrams for all MVP endpoints to enable 
 - Foundation for COOKAITeam/cookie-backend#8 (BACK-008: Image Upload)
 
 **Branch**: `diagram/arch-001-api-specifications`
+
+**Completion Notes (2025-10-18)**:
+- All 6 PlantUML diagram files created with comprehensive API specifications
+- ⚠️ **Syntax Issue Discovered**: Original files used invalid PlantUML `component {...}` syntax
+- ✅ **Syntax Fixed**: All 40+ components converted to valid `rectangle` + `note` pattern
+- ✅ **CI Updated**: GitHub Actions workflow now properly validates PlantUML syntax and fails on errors
+- All diagrams now render correctly without syntax errors
+- Specifications include full request/response schemas, validation rules, error codes, side effects
+- Ready for backend team to start implementation (BACK-004, BACK-005, BACK-007, BACK-008)
+
+**Refactoring Session (2025-10-18)**:
+- 🔄 **ARCH-001 Refactor Started**: Applying professional UML notation standards
+- ✅ **GitHub Issue Created**: #18 (Refactor API diagrams to proper UML component notation)
+- ✅ **Branch Created**: `refactor/arch-001-proper-uml-notation`
+- ✅ **Infrastructure Setup**: Created `diagrams/exports/`, `scripts/test-diagrams.ps1`, sequence diagram directories
+- ✅ **api_endpoints_overview.puml Refactored**: Converted to proper UML component diagram with:
+  - Component notation with stereotypes (<<Public>>, <<Authenticated>>, <<Admin>>, <<Internal>>)
+  - Color coding (Blue/Green/Red/Gray by auth level)
+  - ALL component dependencies shown with arrows
+  - OpenAPI-ready structure (components → tags, endpoints → paths, auth → security schemes)
+  - Clean, minimal notes (detailed specs moved to sequence diagrams - to be created)
+- 🔄 **In Progress**: 5 remaining API diagrams + 15-20 sequence diagrams to be created in next session
+
+**Next Steps**:
+1. Refactor remaining 5 API diagrams (auth, recipe, user, admin, upload) to UML component notation
+2. Create 15-20 detailed sequence diagrams for request/response flows
+3. Update CLAUDE.md with UML/PlantUML standards
+4. Test all diagrams with PlantUML validation
+5. Create PR to close #18
 
 ---
 
