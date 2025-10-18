@@ -1,5 +1,4 @@
 @startuml COOKie_Deployment_Diagram
-!theme spacelab
 
 title Deployment Diagram: COOKie Platform Infrastructure
 
