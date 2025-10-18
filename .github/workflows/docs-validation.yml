@@ -157,14 +157,16 @@ jobs:
           while IFS= read -r file; do
             echo "Checking $file..."
 
-            # Try to generate SVG (if this fails, diagram is invalid)
-            # Redirect stderr and check exit code
-            if java -jar plantuml.jar -tsvg "$file" -o /tmp/plantuml-test 2>&1 | grep -qi "error\|exception\|fail"; then
+            # Try to generate SVG (check exit code, not output text)
+            # PlantUML exits with non-zero code on syntax errors
+            if java -jar plantuml.jar -tsvg "$file" -o /tmp/plantuml-test 2>&1 > /tmp/plantuml-output.log; then
+              echo "✅ $file is valid"
+            else
               echo "❌ Failed to generate SVG for $file"
+              echo "Error output:"
+              cat /tmp/plantuml-output.log | head -20
               failed_files+=("$file")
               all_valid=false
-            else
-              echo "✅ $file is valid"
             fi
           done < <(find diagrams -name "*.puml" -type f)
 
