@@ -152,20 +152,28 @@ jobs:
           all_valid=true
           failed_files=()
 
+          # Create temp output directory
+          mkdir -p /tmp/plantuml-check
+
           # Find and validate all .puml files
           while IFS= read -r file; do
             echo "Checking $file..."
 
-            # Use -checksyntax flag for syntax validation (more reliable than -syntax)
-            if java -jar plantuml.jar -checksyntax "$file" 2>&1 | grep -q "Error"; then
+            # Try to compile the diagram (exit code 0 = success, non-zero = error)
+            # Use -failfast2 to stop on first error and return non-zero exit code
+            if java -jar plantuml.jar -failfast2 "$file" -o /tmp/plantuml-check > /dev/null 2>&1; then
+              echo "✅ $file is valid"
+            else
               echo "❌ Syntax error in $file"
-              java -jar plantuml.jar -checksyntax "$file" 2>&1
+              # Show actual error
+              java -jar plantuml.jar "$file" -o /tmp/plantuml-check 2>&1 | head -10
               failed_files+=("$file")
               all_valid=false
-            else
-              echo "✅ $file is valid"
             fi
           done < <(find diagrams -name "*.puml" -type f)
+
+          # Cleanup
+          rm -rf /tmp/plantuml-check
 
           # Summary and exit
           if [ "$all_valid" = true ]; then
